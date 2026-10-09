@@ -42,11 +42,11 @@ public static class DataSeeder
         (StatusKind.Processing, "to_contact", "À contacter", false), (StatusKind.Processing, "contacted", "Contacté", false),
         (StatusKind.Processing, "visit_planned", "Visite planifiée", false), (StatusKind.Processing, "visited", "Visité", false),
         (StatusKind.Processing, "to_follow_up", "À relancer", false), (StatusKind.Processing, "done", "Traitement terminé", false),
-        (StatusKind.Outcome, StatusCodes.Pending, "En attente", true), (StatusKind.Outcome, "interested", "Intéressé", false),
+        (StatusKind.Outcome, StatusCodes.Pending, "En attente", true), (StatusKind.Outcome, "interested", "Intéressé", true),
         (StatusKind.Outcome, "not_interested", "Non intéressé", false), (StatusKind.Outcome, "to_recontact", "À recontacter", false),
-        (StatusKind.Outcome, "appointment_requested", "Rendez-vous demandé", false), (StatusKind.Outcome, "demo_requested", "Démonstration demandée", false),
-        (StatusKind.Outcome, "proposal_sent", "Proposition envoyée", false), (StatusKind.Outcome, "negotiation", "Négociation", false),
-        (StatusKind.Outcome, "won", "Client acquis", false), (StatusKind.Outcome, "dropped", "Sans suite", false),
+        (StatusKind.Outcome, "appointment_requested", "Rendez-vous demandé", true), (StatusKind.Outcome, "demo_requested", "Démonstration demandée", true),
+        (StatusKind.Outcome, "proposal_sent", "Proposition envoyée", true), (StatusKind.Outcome, "negotiation", "Négociation", false),
+        (StatusKind.Outcome, "won", "Client acquis", true), (StatusKind.Outcome, "dropped", "Sans suite", false),
     ];
 
     private static readonly (string Name, string[] Subs)[] Categories =
@@ -97,18 +97,24 @@ public static class DataSeeder
     /// </summary>
     private static async Task GrantPhase2PermissionsAsync(IServiceProvider s, AppDbContext db, CancellationToken ct)
     {
-        if (await db.SystemFlags.AnyAsync(f => f.Key == PermissionIntroductions.Phase2Flag, ct)) return;
+        await GrantOnceAsync(s, db, PermissionIntroductions.Phase2Flag, PermissionIntroductions.Phase2, ct);
+        await GrantOnceAsync(s, db, PermissionIntroductions.Phase3Flag, PermissionIntroductions.Phase3, ct);
+    }
+
+    private static async Task GrantOnceAsync(IServiceProvider s, AppDbContext db, string flag, string[] introduced, CancellationToken ct)
+    {
+        if (await db.SystemFlags.AnyAsync(f => f.Key == flag, ct)) return;
         var roles = s.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
         foreach (var (name, defaults) in Roles.DefaultPermissions)
         {
             var role = await roles.FindByNameAsync(name);
             if (role is null) continue;
             var have = (await roles.GetClaimsAsync(role)).Where(c => c.Type == Permissions.ClaimType).Select(c => c.Value).ToHashSet();
-            foreach (var p in PermissionIntroductions.Phase2.Where(p => defaults.Contains(p) && !have.Contains(p)))
+            foreach (var p in introduced.Where(p => defaults.Contains(p) && !have.Contains(p)))
                 await roles.AddClaimAsync(role, new Claim(Permissions.ClaimType, p));
         }
 
-        db.SystemFlags.Add(new SystemFlag { Key = PermissionIntroductions.Phase2Flag, Value = "done" });
+        db.SystemFlags.Add(new SystemFlag { Key = flag, Value = "done" });
         await db.SaveChangesAsync(ct);
         s.GetRequiredService<Prospecta.Application.Abstractions.IPermissionStore>().Invalidate();
     }
@@ -124,6 +130,9 @@ public static class DataSeeder
             db.StatusValues.Add(new StatusValue { Kind = kind, Code = code, Label = label, SortOrder = order[kind] * 10, IsSystem = system, CreatedAt = DateTime.UtcNow });
         }
 
+        // Outcomes feeding the indicators cannot be disabled (also applied to databases seeded before they were flagged).
+        var indicatorCodes = new[] { "interested", "appointment_requested", "demo_requested", "proposal_sent", "won" };
+        foreach (var st in await db.StatusValues.Where(x => x.Kind == StatusKind.Outcome && indicatorCodes.Contains(x.Code) && !x.IsSystem).ToListAsync(ct)) { st.IsSystem = true; st.IsActive = true; }
         await db.SaveChangesAsync(ct);
     }
 

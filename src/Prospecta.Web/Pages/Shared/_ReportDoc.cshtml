@@ -1,0 +1,29 @@
+@using Prospecta.Application.Reporting
+@model ReportDocument
+<article class="report">
+    <header class="card"><h1>@Model.Title</h1>@if (Model.Subtitle is not null) { <p class="muted">@Model.Subtitle</p> }
+        <dl class="kv">@foreach (var m in Model.Meta) { <dt>@m.Key</dt><dd>@m.Value</dd> }</dl>
+        @if (Model.Footer is not null) { <p class="muted"><em>@Model.Footer</em></p> }</header>
+    @foreach (var s in Model.Sections)
+    {
+        <section class="card @(s.Kind == SectionKind.Analysis ? "analysis" : "")">
+            <h2>@s.Heading</h2>
+            @if (s.Kind == SectionKind.Analysis) { <p class="badge warn">Analyse et recommandations générées automatiquement — pas des faits collectés</p> }
+            @foreach (var b in s.Blocks)
+            {
+                switch (b.Type)
+                {
+                    case "p": <p>@b.Text</p> break;
+                    case "note": <p class="muted"><em>@b.Text</em></p> break;
+                    case "list": <ul>@foreach (var i in b.Items) { <li>@i</li> }</ul> break;
+                    case "kv": <dl class="kv">@foreach (var kv in b.Pairs) { <dt>@kv.Key</dt><dd>@kv.Value</dd> }</dl> break;
+                    case "table":
+                        @if (b.Caption is not null) { <h3>@b.Caption</h3> }
+                        <div class="tablewrap"><table class="responsive"><thead><tr>@foreach (var h in b.Headers) { <th>@h</th> }</tr></thead>
+                            <tbody>@foreach (var r in b.Rows) { <tr>@for (var i = 0; i < r.Count; i++) { <td data-label="@(i < b.Headers.Count ? b.Headers[i] : "")">@r[i]</td> }</tr> }</tbody></table></div>
+                        break;
+                }
+            }
+        </section>
+    }
+</article>

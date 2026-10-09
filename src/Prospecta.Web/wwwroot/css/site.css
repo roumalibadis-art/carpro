@@ -43,3 +43,4 @@ th { font-size:.8rem; text-transform:uppercase; letter-spacing:.03em; color:var(
 #biztable td:nth-child(2), #biztable th:nth-child(2) { min-width:210px; }
 #biztable td:nth-child(3) { min-width:130px; }
 details.colpick { position:relative; } details.colpick summary { list-style:none; }
+.report .analysis { border-left:4px solid var(--warn); } .report h1 { font-size:1.6rem; }

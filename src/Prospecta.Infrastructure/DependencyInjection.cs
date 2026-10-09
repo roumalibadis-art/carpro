@@ -32,6 +32,7 @@ public static class DependencyInjection
         });
         services.AddScoped<IAppDbContext>(sp => sp.GetRequiredService<AppDbContext>());
         services.AddMemoryCache();
+        services.AddSingleton<Prospecta.Application.Abstractions.IReportPdfRenderer, Prospecta.Infrastructure.Reporting.PdfReportRenderer>();
         services.AddScoped<IPermissionStore, PermissionStore>();
 
         services.AddIdentityCore<ApplicationUser>(o =>

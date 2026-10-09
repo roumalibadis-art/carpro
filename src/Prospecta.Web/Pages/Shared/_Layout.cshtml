@@ -34,7 +34,7 @@
                 <a href="/Campaigns">@Strings.T("nav.campaigns")</a><a href="/Outings">@Strings.T("nav.outings")</a><a href="/Visits">@Strings.T("nav.visits")</a>
                 <a href="/FollowUps">@Strings.T("nav.followups")@if (overdue > 0) { <span class="badge bad" title="Relances en retard">@overdue</span> }</a>
             }
-            <span class="soon" title="Phase 3">@Strings.T("nav.studies") <small>@Strings.T("nav.soon")</small></span>
+            @if (Can(Permissions.ReportCreate)) { <a href="/Evaluation">@Strings.T("nav.evaluation")</a><a href="/Reports">@Strings.T("nav.myreports")</a> }
             @if (Can(Permissions.ReferenceManage)) { <a href="/Admin/Geography">Géographie</a><a href="/Admin/Categories">Activités</a><a href="/Admin/Statuses">Statuts</a> }
             @if (Can(Permissions.UserManage)) { <a href="/Admin/Users">@Strings.T("nav.users")</a> }
             @if (Can(Permissions.RoleManage)) { <a href="/Admin/Roles">@Strings.T("nav.roles")</a> }

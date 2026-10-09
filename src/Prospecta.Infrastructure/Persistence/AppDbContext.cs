@@ -38,6 +38,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<Expense> Expenses => Set<Expense>();
     public DbSet<Notification> Notifications => Set<Notification>();
     public DbSet<SystemFlag> SystemFlags => Set<SystemFlag>();
+    public DbSet<Report> Reports => Set<Report>();
+    public DbSet<ReportSnapshot> ReportSnapshots => Set<ReportSnapshot>();
     public DbSet<ApplicationUser> AppUsers => Set<ApplicationUser>();
 
     protected override void OnConfiguring(DbContextOptionsBuilder o) =>
@@ -293,6 +295,21 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
             e.HasKey(f => f.Key);
             e.Property(f => f.Key).HasMaxLength(100);
             e.Property(f => f.Value).HasMaxLength(200);
+        });
+
+        m.Entity<Report>(e =>
+        {
+            e.Property(r => r.Title).HasMaxLength(250);
+            e.Property(r => r.ParametersJson).HasColumnType(Database.IsMySql() ? "longtext" : "TEXT");
+            e.Property(r => r.ValidationNote).HasMaxLength(500);
+            e.HasIndex(r => new { r.OwnerUserId, r.CreatedAt });
+            e.HasIndex(r => new { r.Shared, r.CreatedAt });
+        });
+        m.Entity<ReportSnapshot>(e =>
+        {
+            e.Property(r => r.ContentJson).HasColumnType(Database.IsMySql() ? "longtext" : "TEXT");
+            e.HasOne(r => r.Report).WithMany(r => r.Snapshots).HasForeignKey(r => r.ReportId).OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(r => r.ReportId);
         });
     }
 }

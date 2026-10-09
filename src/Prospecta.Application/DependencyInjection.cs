@@ -7,6 +7,7 @@ using Prospecta.Application.Duplicates;
 using Prospecta.Application.Imports;
 using Prospecta.Application.Prospecting;
 using Prospecta.Application.Reference;
+using Prospecta.Application.Reporting;
 using Prospecta.Application.Users;
 
 namespace Prospecta.Application;
@@ -27,6 +28,10 @@ public static class DependencyInjection
         services.AddScoped<DashboardService>();
         services.AddScoped<AuditQueryService>();
         services.AddScoped<SavedFilterService>();
+        services.AddScoped<TeamScope>();
+        services.AddScoped<IndicatorService>();
+        services.AddScoped<ReportBuilders>();
+        services.AddScoped<ReportService>();
         services.AddScoped<FollowUpService>();
         services.AddScoped<VisitService>();
         services.AddScoped<CampaignService>();

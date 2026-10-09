@@ -12,10 +12,15 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
+    <PackageReference Include="PDFsharp-MigraDoc" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Prospecta.Application\Prospecta.Application.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Reporting\Fonts\*.ttf" />
   </ItemGroup>
 
 </Project>

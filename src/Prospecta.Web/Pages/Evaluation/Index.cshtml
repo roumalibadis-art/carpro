@@ -1,0 +1,40 @@
+@page
+@model Prospecta.Web.Pages.Evaluation.IndexModel
+@{ ViewData["Title"] = "Évaluation"; }
+<h1>Évaluation et indicateurs</h1>
+@if (!ModelState.IsValid) { <div class="alert err" role="alert">@Html.ValidationSummary(true)</div> }
+<form method="get" class="card"><div class="filters">
+    <div><label>Du</label><input asp-for="From" type="date" required /></div><div><label>Au</label><input asp-for="To" type="date" required /></div>
+    <div><label>Campagne</label><select asp-for="CampaignId" asp-items="Model.Campaigns"></select></div>
+    <div><label>Utilisateur</label><select asp-for="UserId" asp-items="Model.Users"></select></div>
+    <div><label>Secteur</label><select asp-for="CategoryId" asp-items="Model.Categories"></select></div>
+</div><div class="actions"><button type="submit">Calculer</button><a class="btn secondary" href="/Evaluation">Réinitialiser</a></div></form>
+@if (Model.Data is { } d)
+{
+    <p class="muted">Filtres appliqués : @string.Join(" · ", d.Filters). Comparaison avec la période comparable : @d.PreviousFrom.ToString("dd/MM/yyyy") → @d.PreviousTo.ToString("dd/MM/yyyy").</p>
+    <div class="grid wide">
+    @foreach (var i in d.Indicators)
+    {
+        <section class="card"><h3>@i.Label</h3>
+            <p style="font-size:1.8rem;margin:.2rem 0"><b>@i.Display</b></p>
+            @if (i.Computable && i.Unit == "%") { <div class="bar"><i style="width:@(Math.Min(100m, i.Value ?? 0))%"></i></div> }
+            <p class="muted">@(i.Numerator is null ? "" : $"{i.Numerator} / {i.Denominator} · ")@(i.Delta is null ? "évolution non calculable" : $"évolution {(i.Delta >= 0 ? "+" : "")}{i.Delta:0.#}{(i.Unit == "%" ? " pts" : " DA")} (précédente : {(i.Unit == "%" ? $"{i.PreviousValue:0.#} %" : $"{i.PreviousValue:N2} DA")})")</p>
+            <p class="muted"><small>@i.Definition</small></p></section>
+    }
+    </div>
+    <section class="card"><h2>Volumes (actions et entreprises distinctes)</h2>
+        <div class="tablewrap"><table class="responsive"><tbody>
+        @{ var c = d.Counts; }
+        <tr><td>Entreprises affectées</td><td>@c.Assigned</td><td>Entreprises traitées</td><td>@c.Treated</td></tr>
+        <tr><td>Entreprises contactées</td><td>@c.Contacted</td><td>Appels réalisés</td><td>@c.Calls</td></tr>
+        <tr><td>Visites planifiées</td><td>@c.VisitsPlanned</td><td>Visites réalisées</td><td>@c.VisitsDone</td></tr>
+        <tr><td>Relances échues / effectuées</td><td>@c.FollowUpsDue / @c.FollowUpsDone</td><td>Relances en retard</td><td>@c.FollowUpsOverdue</td></tr>
+        <tr><td>Prospects intéressés</td><td>@c.Interested</td><td>Rendez-vous obtenus</td><td>@c.Appointments</td></tr>
+        <tr><td>Démonstrations demandées</td><td>@c.DemosRequested</td><td>Propositions envoyées</td><td>@c.ProposalsSent</td></tr>
+        <tr><td>Clients acquis</td><td>@c.Clients</td><td>Dépenses réelles</td><td>@c.ExpensesActual.ToString("N2") DA</td></tr>
+        </tbody></table></div></section>
+    <section class="card"><h2>Qualité des données et contexte</h2>
+        <p>Complétude moyenne des fiches affectées : @(d.AverageCompleteness is null ? "non calculable" : d.AverageCompleteness.Value.ToString("0.#") + " %") · Actions avec résultat ou niveau d'intérêt renseigné : @d.Counts.VisitsWithResult / @d.Counts.Contacted.</p>
+        <p class="muted">Ces indicateurs ne suffisent pas à évaluer la qualité du travail d'un commercial : tenez compte du contexte (zone, secteur, saison), des objectifs fixés et de la qualité des données saisies. « Non calculable » signifie que les données ou le dénominateur manquent, pas un mauvais résultat.</p></section>
+    <p><a class="btn" href="/Reports/New?type=Individual&From=@d.From.ToString("yyyy-MM-dd")&To=@d.To.ToString("yyyy-MM-dd")">Générer le rapport individuel de cette période</a></p>
+}

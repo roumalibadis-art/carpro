@@ -23,12 +23,16 @@ public static class Permissions
     public const string OutingManage = "Outing.Manage";           // create/edit outings, see all outings
     public const string ActivityRecord = "Activity.Record";       // own visits, calls, follow-ups, expenses
     public const string ActivityViewAll = "Activity.ViewAll";     // team activity (managers)
+    public const string ReportCreate = "Report.Create";           // own reports and indicators
+    public const string ReportViewTeam = "Report.ViewTeam";       // reports shared by one's team + team comparison (report D)
+    public const string ReportViewAll = "Report.ViewAll";         // reports shared by anyone in the organization
 
     public static readonly IReadOnlyList<string> All =
     [
         BusinessView, BusinessViewAll, BusinessCreate, BusinessEdit, BusinessDelete, BusinessVerify, BusinessAssign,
         BusinessImport, BusinessExport, DuplicateManage, ReferenceManage, UserManage, RoleManage, AuditView,
         CampaignManage, OutingManage, ActivityRecord, ActivityViewAll,
+        ReportCreate, ReportViewTeam, ReportViewAll,
     ];
 }
 
@@ -49,8 +53,9 @@ public static class Roles
             Permissions.BusinessView, Permissions.BusinessViewAll, Permissions.BusinessCreate, Permissions.BusinessEdit,
             Permissions.BusinessVerify, Permissions.BusinessAssign, Permissions.BusinessImport, Permissions.BusinessExport,
             Permissions.DuplicateManage, Permissions.CampaignManage, Permissions.OutingManage, Permissions.ActivityRecord, Permissions.ActivityViewAll,
+            Permissions.ReportCreate, Permissions.ReportViewTeam,
         ],
-        [Salesperson] = [Permissions.BusinessView, Permissions.BusinessEdit, Permissions.BusinessCreate, Permissions.ActivityRecord],
+        [Salesperson] = [Permissions.BusinessView, Permissions.BusinessEdit, Permissions.BusinessCreate, Permissions.ActivityRecord, Permissions.ReportCreate],
     };
 }
 
@@ -59,4 +64,6 @@ public static class PermissionIntroductions
 {
     public const string Phase2Flag = "seed:permissions:phase2";
     public static readonly string[] Phase2 = [Permissions.CampaignManage, Permissions.OutingManage, Permissions.ActivityRecord, Permissions.ActivityViewAll];
+    public const string Phase3Flag = "seed:permissions:phase3";
+    public static readonly string[] Phase3 = [Permissions.ReportCreate, Permissions.ReportViewTeam, Permissions.ReportViewAll];
 }

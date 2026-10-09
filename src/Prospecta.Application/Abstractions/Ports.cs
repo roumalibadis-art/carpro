@@ -33,6 +33,8 @@ public interface IAppDbContext
     DbSet<Expense> Expenses { get; }
     DbSet<Notification> Notifications { get; }
     DbSet<SystemFlag> SystemFlags { get; }
+    DbSet<Report> Reports { get; }
+    DbSet<ReportSnapshot> ReportSnapshots { get; }
     DbSet<Identity.ApplicationUser> AppUsers { get; }
     DatabaseFacade Database { get; }
     Task<int> SaveChangesAsync(CancellationToken ct = default);
@@ -63,4 +65,9 @@ public interface IPermissionStore
 {
     Task<IReadOnlySet<string>> GetForRolesAsync(IEnumerable<string> roles, CancellationToken ct = default);
     void Invalidate();
+}
+
+public interface IReportPdfRenderer
+{
+    byte[] Render(Reporting.ReportDocument document);
 }

@@ -1,0 +1,2 @@
+Liberation Sans fonts are licensed under the SIL Open Font License 1.1 (https://openfontlicense.org).
+Copyright (c) 2012 Red Hat, Inc. They are redistributed unmodified and used only to embed accented French/Arabic-safe Latin text in generated PDFs.

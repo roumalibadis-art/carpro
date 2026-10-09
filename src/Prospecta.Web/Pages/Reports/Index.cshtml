@@ -1,0 +1,18 @@
+@page
+@model Prospecta.Web.Pages.Reports.IndexModel
+@{ ViewData["Title"] = Model.Team ? "Rapports de l'équipe" : "Mes rapports"; bool CanTeam = User.HasClaim(Permissions.ClaimType, Permissions.ReportViewTeam) || User.HasClaim(Permissions.ClaimType, Permissions.ReportViewAll); }
+<div class="row" style="justify-content:space-between;align-items:center"><h1>@ViewData["Title"]</h1><a class="btn" href="/Reports/New">+ Nouveau rapport</a></div>
+<nav class="row"><a class="btn @(Model.Team ? "secondary" : "")" href="/Reports">Mes rapports</a>@if (CanTeam) { <a class="btn @(Model.Team ? "" : "secondary")" href="/Reports?Team=true">Rapports partagés par l'équipe</a> }</nav>
+<form method="get" class="card row" style="align-items:end"><input type="hidden" name="Team" value="@Model.Team.ToString().ToLower()" />
+    <div><label>Type</label><select asp-for="Type" data-autosubmit><option value="">Tous</option><option value="MarketStudy">Étude de marché</option><option value="OutingBalance">Bilan de sortie</option><option value="Individual">Rapport individuel</option><option value="Manager">Rapport du responsable</option></select></div></form>
+@if (Model.Result.Items.Count == 0) { <div class="card">@Strings.T("common.empty")</div> }
+else
+{
+    <div class="tablewrap"><table class="responsive"><thead><tr><th>Rapport</th><th>Type</th><th>Auteur</th><th>Généré le</th><th>Partage</th><th>Validation</th></tr></thead><tbody>
+    @foreach (var r in Model.Result.Items)
+    {
+        <tr><td data-label="Rapport"><a href="/Reports/View/@r.Id">@r.Title</a></td><td data-label="Type">@Prospecta.Web.Pages.Reports.IndexModel.TypeLabel(r.Type)</td><td data-label="Auteur">@r.Owner</td><td data-label="Généré">@AppPage.Local(r.GeneratedAt)</td>
+            <td data-label="Partage">@(r.Shared ? "partagé" : "privé")</td><td data-label="Validation">@(r.ValidatedBy is null ? "—" : r.ValidatedBy + " le " + r.ValidatedAt!.Value.ToString("dd/MM/yyyy"))</td></tr>
+    }</tbody></table></div>
+    <partial name="_Pager" model="(Model.Result.Page, Model.Result.TotalPages, Model.Result.Total)" />
+}

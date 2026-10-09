@@ -1,0 +1,23 @@
+@page "{id:guid}"
+@model Prospecta.Web.Pages.Reports.ViewModel
+@{ var s = Model.Data.Summary; ViewData["Title"] = s.Title; }
+<div class="card row" style="justify-content:space-between;align-items:center">
+    <div><b>@Prospecta.Web.Pages.Reports.IndexModel.TypeLabel(s.Type)</b> · @s.Owner · généré le @AppPage.Local(s.GeneratedAt) · <span class="badge">@(s.Shared ? "partagé" : "privé")</span>
+        @if (s.ValidatedBy is not null) { <span class="badge ok">validé par @s.ValidatedBy</span> }
+        <br /><span class="muted">Chiffres figés à la génération : ils ne changent pas si les fiches sont modifiées ensuite.</span></div>
+    <div class="actions">
+        <a class="btn" href="/Reports/View/@s.Id?handler=Export&format=pdf">PDF</a><a class="btn secondary" href="/Reports/View/@s.Id?handler=Export&format=xlsx">Excel</a>
+        <form method="post" asp-page-handler="Duplicate" data-confirm="Générer un nouveau rapport avec les mêmes paramètres (chiffres à jour) ?"><button class="secondary" type="submit">Dupliquer (nouvelle analyse)</button></form>
+        @if (Model.Data.CanShare)
+        {
+            <form method="post" asp-page-handler="Share"><input type="hidden" name="shared" value="@((!s.Shared).ToString().ToLower())" /><button class="secondary" type="submit">@(s.Shared ? "Repasser en privé" : "Partager")</button></form>
+            <form method="post" asp-page-handler="Delete" data-confirm="Supprimer ce rapport ?"><button class="danger" type="submit">Supprimer</button></form>
+        }
+        <a class="btn secondary" href="/Reports">Retour</a>
+    </div>
+</div>
+@if (Model.Data.CanValidate)
+{
+    <form method="post" asp-page-handler="Validate" class="card row" style="align-items:end" data-confirm="Valider ce rapport en votre nom ?"><div><label>Note de validation (facultatif)</label><input name="note" maxlength="500" /></div><button type="submit">Valider ce rapport</button></form>
+}
+<partial name="_ReportDoc" model="Model.Data.Document" />

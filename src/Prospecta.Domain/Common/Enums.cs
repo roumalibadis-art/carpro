@@ -49,3 +49,5 @@ public enum FollowUpStatus { ToDo = 1, Done = 2, Postponed = 3, Cancelled = 4 }
 public enum ExpenseKind { Planned = 1, Actual = 2 }
 
 public enum ExpenseCategory { Transport = 1, Marketing = 2, Other = 3 }
+
+public enum ReportType { MarketStudy = 1, OutingBalance = 2, Individual = 3, Manager = 4 }
