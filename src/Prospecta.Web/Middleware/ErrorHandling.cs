@@ -24,6 +24,11 @@ public sealed class ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorH
             };
             await Write(ctx, status, ex.Message, errors);
         }
+        catch (Prospecta.Application.Collection.ConnectorException ex) when (!ctx.Response.HasStarted)
+        {
+            // A free external source is unavailable or restricted: a clear message, not a server fault.
+            await Write(ctx, 502, ex.Message, []);
+        }
         catch (BadHttpRequestException ex) when (!ctx.Response.HasStarted)
         {
             await Write(ctx, 400, "Requête invalide.", [ex.Message]);

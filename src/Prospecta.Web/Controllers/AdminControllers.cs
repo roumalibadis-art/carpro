@@ -25,13 +25,13 @@ public sealed class ReferenceController(ReferenceService service) : ControllerBa
     [HttpGet("categories")]
     public async Task<IActionResult> Categories(Guid? parentId, bool rootsOnly = false, bool includeInactive = false, CancellationToken ct = default) => Ok(await service.ListCategoriesAsync(parentId, rootsOnly, includeInactive, ct));
 
-    public sealed record CategoryRequest(string Name, Guid? ParentId, bool IsActive = true);
+    public sealed record CategoryRequest(string Name, Guid? ParentId, bool IsActive = true, string? OsmFilter = null);
 
     [HttpPost("categories")]
-    public async Task<IActionResult> CreateCategory(CategoryRequest r, CancellationToken ct) => Ok(await service.SaveCategoryAsync(null, r.Name, r.ParentId, r.IsActive, ct));
+    public async Task<IActionResult> CreateCategory(CategoryRequest r, CancellationToken ct) => Ok(await service.SaveCategoryAsync(null, r.Name, r.ParentId, r.IsActive, r.OsmFilter, ct));
 
     [HttpPut("categories/{id:guid}")]
-    public async Task<IActionResult> UpdateCategory(Guid id, CategoryRequest r, CancellationToken ct) => Ok(await service.SaveCategoryAsync(id, r.Name, r.ParentId, r.IsActive, ct));
+    public async Task<IActionResult> UpdateCategory(Guid id, CategoryRequest r, CancellationToken ct) => Ok(await service.SaveCategoryAsync(id, r.Name, r.ParentId, r.IsActive, r.OsmFilter, ct));
 
     [HttpGet("statuses")]
     public async Task<IActionResult> Statuses(StatusKind? kind, bool includeInactive = false, CancellationToken ct = default) => Ok(await service.ListStatusesAsync(kind, includeInactive, ct));

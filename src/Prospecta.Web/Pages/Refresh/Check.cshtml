@@ -1,0 +1,21 @@
+@page "{id:guid}"
+@model Prospecta.Web.Pages.Refresh.CheckModel
+@{ ViewData["Title"] = "Comparer au site"; }
+<h1>Comparer la fiche au site public</h1>
+@if (!ModelState.IsValid) { <div class="alert err" role="alert">@Html.ValidationSummary(true)</div> }
+@if (Model.Data is { } d)
+{
+    <p><a href="/Businesses/Details/@d.BusinessId">@d.Business</a> — <a href="@d.Url" rel="noopener noreferrer nofollow" target="_blank">@d.Url</a></p>
+    @if (d.Problem is not null) { <div class="alert warn">Site non lu : @d.Problem<br />Vous pouvez marquer la fiche « erreur de contact » ou la vérifier par téléphone.</div> }
+    else if (d.Proposals.Count == 0) { <div class="alert ok">Aucune différence détectée avec ce que le site publie.</div> }
+    else
+    {
+        <form method="post" asp-page-handler="Apply" class="card" data-confirm="Appliquer les modifications cochées ?">
+            <div class="tablewrap"><table class="responsive"><thead><tr><th></th><th>Champ</th><th>Valeur actuelle</th><th>Valeur du site</th><th></th></tr></thead><tbody>
+            @foreach (var p in d.Proposals)
+            {
+                <tr><td><input type="checkbox" name="fields" value="@p.Field" disabled="@p.Blocked" /></td><td data-label="Champ">@p.Label</td><td data-label="Actuelle">@(p.Current ?? Strings.T("common.none"))</td><td data-label="Site">@p.Proposed</td><td data-label="Remarque">@p.Why</td></tr>
+            }</tbody></table></div>
+            <div class="actions"><button type="submit">Appliquer la sélection</button><a class="btn secondary" href="/Refresh">Retour</a></div></form>
+    }
+}

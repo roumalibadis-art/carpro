@@ -699,6 +699,10 @@ namespace Prospecta.Infrastructure.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("varchar(150)");
 
+                    b.Property<string>("OsmFilter")
+                        .HasMaxLength(300)
+                        .HasColumnType("varchar(300)");
+
                     b.Property<Guid?>("ParentId")
                         .HasColumnType("char(36)");
 
@@ -1018,6 +1022,131 @@ namespace Prospecta.Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("CampaignTargets");
+                });
+
+            modelBuilder.Entity("Prospecta.Domain.Prospecting.ConnectorUsage", b =>
+                {
+                    b.Property<string>("ConnectorKey")
+                        .HasMaxLength(64)
+                        .HasColumnType("varchar(64)");
+
+                    b.Property<DateOnly>("Day")
+                        .HasColumnType("date");
+
+                    b.Property<int>("Calls")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("LastCallAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("ConnectorKey", "Day");
+
+                    b.ToTable("ConnectorUsage");
+                });
+
+            modelBuilder.Entity("Prospecta.Domain.Prospecting.DataCollectionJob", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("ConnectorKey")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("varchar(40)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("DuplicateCount")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("FinishedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("Found")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ImportedCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Message")
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)");
+
+                    b.Property<int>("NewCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ParametersJson")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("varchar(2000)");
+
+                    b.Property<Guid?>("RetryOfJobId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<int>("SkippedCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("UserId", "CreatedAt");
+
+                    b.ToTable("CollectionJobs");
+                });
+
+            modelBuilder.Entity("Prospecta.Domain.Prospecting.DataCollectionJobResult", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid?>("BusinessId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("ExternalId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<Guid>("JobId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid?>("MatchBusinessId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("MatchReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<string>("PayloadJson")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExternalId");
+
+                    b.HasIndex("JobId", "Status");
+
+                    b.ToTable("CollectionResults");
                 });
 
             modelBuilder.Entity("Prospecta.Domain.Prospecting.Expense", b =>
@@ -1665,6 +1794,17 @@ namespace Prospecta.Infrastructure.Migrations
                     b.Navigation("Business");
 
                     b.Navigation("Campaign");
+                });
+
+            modelBuilder.Entity("Prospecta.Domain.Prospecting.DataCollectionJobResult", b =>
+                {
+                    b.HasOne("Prospecta.Domain.Prospecting.DataCollectionJob", "Job")
+                        .WithMany()
+                        .HasForeignKey("JobId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Job");
                 });
 
             modelBuilder.Entity("Prospecta.Domain.Prospecting.FollowUp", b =>

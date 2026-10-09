@@ -93,3 +93,16 @@
     var o = sel.options[sel.selectedIndex]; if (o && o.dataset.kind) kind.value = o.dataset.kind;
   });
 })();
+
+// Coordinates from a pasted map link (parsed on our server: no request to Google).
+(function () {
+  var btn = document.getElementById('gmaps-extract'); if (!btn) return;
+  btn.addEventListener('click', function () {
+    var url = document.getElementById('gmaps').value, msg = document.getElementById('gmaps-msg');
+    fetch('/ui/parse-maps?url=' + encodeURIComponent(url), { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (d) {
+      if (d.error) { msg.textContent = d.error; return; }
+      var lat = document.querySelector('[name="Input.Latitude"]'), lon = document.querySelector('[name="Input.Longitude"]');
+      lat.value = d.latitude; lon.value = d.longitude; msg.textContent = 'Coordonnées renseignées' + (d.name ? ' (lieu : ' + d.name + ')' : '') + '.';
+    }).catch(function () { msg.textContent = 'Lecture impossible.'; });
+  });
+})();

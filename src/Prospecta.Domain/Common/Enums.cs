@@ -19,6 +19,7 @@ public enum SourceType
     Manual = 7,
     PublicUrl = 8,
     Demo = 9,
+    OpenStreetMap = 10,
 }
 
 public enum Priority { Low = 1, Normal = 2, High = 3 }
@@ -51,3 +52,7 @@ public enum ExpenseKind { Planned = 1, Actual = 2 }
 public enum ExpenseCategory { Transport = 1, Marketing = 2, Other = 3 }
 
 public enum ReportType { MarketStudy = 1, OutingBalance = 2, Individual = 3, Manager = 4 }
+
+public enum CollectionJobStatus { Running = 1, Completed = 2, Failed = 3, QuotaExceeded = 4 }
+
+public enum CollectionResultStatus { New = 1, PotentialDuplicate = 2, AlreadyImported = 3, Imported = 4, Rejected = 5 }

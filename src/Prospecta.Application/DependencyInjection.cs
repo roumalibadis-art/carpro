@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Prospecta.Application.Abstractions;
 using Prospecta.Application.Businesses;
+using Prospecta.Application.Collection;
 using Prospecta.Application.Common;
 using Prospecta.Application.Dashboard;
 using Prospecta.Application.Duplicates;
@@ -28,6 +29,12 @@ public static class DependencyInjection
         services.AddScoped<DashboardService>();
         services.AddScoped<AuditQueryService>();
         services.AddScoped<SavedFilterService>();
+        services.AddOptions<CollectionOptions>().BindConfiguration("Collection");
+        services.AddScoped<ConnectorQuota>();
+        services.AddScoped<CollectionService>();
+        services.AddScoped<UrlInspectionService>();
+        services.AddScoped<RefreshService>();
+        services.AddScoped<TemplateService>();
         services.AddScoped<TeamScope>();
         services.AddScoped<IndicatorService>();
         services.AddScoped<ReportBuilders>();

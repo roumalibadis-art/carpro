@@ -1,0 +1,35 @@
+@page "{id:guid}"
+@model Prospecta.Web.Pages.Collection.JobModel
+@{ ViewData["Title"] = "Résultats de collecte"; var j = Model.Job; }
+<div class="row" style="justify-content:space-between;align-items:center"><h1>Résultats de collecte <span class="badge @(j.Status == CollectionJobStatus.Completed ? "ok" : "bad")">@j.Status</span></h1><a class="btn secondary" href="/Collection">Retour</a></div>
+<p>@j.Summary · lancée le @AppPage.Local(j.StartedAt) par @j.User</p>
+@if (j.Message is not null) { <div class="alert @(j.Status == CollectionJobStatus.Completed ? "ok" : "warn")">@j.Message</div> }
+<div class="grid"><div class="stat"><b>@j.Found</b><span>trouvées</span></div><div class="stat"><b>@j.NewCount</b><span>nouvelles</span></div><div class="stat"><b>@j.DuplicateCount</b><span>doublons / déjà importées</span></div><div class="stat"><b>@j.ImportedCount</b><span>importées</span></div></div>
+@if (j.Status is CollectionJobStatus.Failed or CollectionJobStatus.QuotaExceeded)
+{
+    <form method="post" asp-page-handler="Retry" class="card"><p>La recherche n'a pas abouti. Vous pouvez la relancer avec les mêmes paramètres : les entreprises déjà importées ne seront pas dupliquées.</p><button type="submit">Relancer la recherche</button></form>
+}
+<form method="get" class="card row" style="align-items:end"><div><label>Afficher</label><select asp-for="Status" data-autosubmit><option value="">Tous</option><option value="New">Nouvelles</option><option value="PotentialDuplicate">Doublons probables</option><option value="AlreadyImported">Déjà importées</option><option value="Imported">Importées</option><option value="Rejected">Écartées</option></select></div></form>
+<form method="post" id="results">
+    @if (Model.Results.Items.Count == 0) { <div class="card">@Strings.T("common.empty")</div> }
+    else
+    {
+        <div class="tablewrap"><table class="responsive"><thead><tr><th><input type="checkbox" data-select-all=".rc" aria-label="Tout sélectionner" /></th><th>Nom</th><th>Téléphone</th><th>Adresse</th><th>Site</th><th>État</th><th>Remarque</th></tr></thead><tbody>
+        @foreach (var r in Model.Results.Items)
+        {
+            <tr><td><input class="rc" type="checkbox" name="ids" value="@r.Id" disabled="@(r.Status is CollectionResultStatus.Imported or CollectionResultStatus.AlreadyImported or CollectionResultStatus.Rejected)" /></td>
+                <td data-label="Nom"><a href="@r.Candidate.SourceUrl" rel="noopener noreferrer nofollow" target="_blank">@r.Name</a>@if (r.BusinessId is { } b) { <a href="/Businesses/Details/@b"> → fiche</a> }</td>
+                <td data-label="Téléphone">@(r.Candidate.Phone ?? Strings.T("common.none"))</td><td data-label="Adresse">@(r.Candidate.Address ?? Strings.T("common.none"))</td>
+                <td data-label="Site">@(r.Candidate.Website ?? Strings.T("common.none"))</td><td data-label="État"><span class="badge @(r.Status == CollectionResultStatus.New ? "ok" : r.Status == CollectionResultStatus.PotentialDuplicate ? "warn" : "")">@r.Status</span></td>
+                <td data-label="Remarque">@r.MatchReason @string.Join(" ", r.Candidate.Notes)@if (r.MatchBusinessId is { } m) { <a href="/Businesses/Details/@m">voir la fiche existante</a> }</td></tr>
+        }</tbody></table></div>
+        <partial name="_Pager" model="(Model.Results.Page, Model.Results.TotalPages, Model.Results.Total)" />
+        <div class="card actions">
+            <button type="submit" asp-page-handler="Import" data-confirm="Créer les fiches sélectionnées ? Elles seront marquées « à vérifier ».">Importer la sélection</button>
+            <button type="submit" asp-page-handler="Import" name="all" value="true" data-confirm="Importer toutes les nouvelles entreprises de cette collecte ?" class="secondary">Importer toutes les nouvelles</button>
+            <label><input type="checkbox" name="includeDuplicates" value="true" /> inclure les doublons probables</label>
+            <button type="submit" asp-page-handler="Reject" class="secondary">Écarter la sélection</button>
+        </div>
+    }
+</form>
+<p class="muted">Données © contributeurs OpenStreetMap (ODbL). Chaque fiche importée conserve sa source et son identifiant OpenStreetMap.</p>

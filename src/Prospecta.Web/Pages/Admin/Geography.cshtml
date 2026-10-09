@@ -20,6 +20,6 @@
 </form>
 <form method="post" asp-page-handler="Import" enctype="multipart/form-data" class="card">
     <h2>Importer des daïras / communes / quartiers (CSV)</h2>
-    <p class="muted">Colonnes : <code>wilaya;daira;commune</code> et, en option, <code>quartier</code>. La wilaya s'indique par son nom ou son code à 2 chiffres et doit déjà exister. Réimporter le même fichier ne crée aucun doublon. Utilisez la liste officielle de votre source (ONS / ANIREF).</p>
+    <p class="muted">Colonnes : <code>wilaya;daira;commune</code> et, en option, <code>quartier</code>. La wilaya s'indique par son nom ou son code à 2 chiffres et doit déjà exister. Réimporter le même fichier ne crée aucun doublon. Utilisez la liste officielle de votre source (ONS / ANIREF). <a href="/Admin/Geography?handler=Template">Télécharger le modèle CSV</a>.</p>
     <div class="row" style="align-items:end"><input type="file" name="file" accept=".csv" required /><button type="submit">Importer</button></div>
 </form>

@@ -75,6 +75,7 @@ public static class DataSeeder
         await SeedStatusesAsync(db, ct);
         await SeedWilayasAsync(db, ct);
         await SeedCategoriesAsync(db, ct);
+        await SeedOsmFiltersAsync(db, ct);
         await SeedUsersAsync(s, config, log, ct);
         if (config.GetValue<bool>("Seed:DemoData")) await DemoData.SeedAsync(s, ct);
     }
@@ -99,6 +100,7 @@ public static class DataSeeder
     {
         await GrantOnceAsync(s, db, PermissionIntroductions.Phase2Flag, PermissionIntroductions.Phase2, ct);
         await GrantOnceAsync(s, db, PermissionIntroductions.Phase3Flag, PermissionIntroductions.Phase3, ct);
+        await GrantOnceAsync(s, db, PermissionIntroductions.Phase4Flag, PermissionIntroductions.Phase4, ct);
     }
 
     private static async Task GrantOnceAsync(IServiceProvider s, AppDbContext db, string flag, string[] introduced, CancellationToken ct)
@@ -153,6 +155,27 @@ public static class DataSeeder
             db.BusinessCategories.Add(parent);
             foreach (var sub in subs)
                 db.BusinessCategories.Add(new BusinessCategory { Name = sub, NormalizedName = TextNormalizer.NormalizeName(sub), Parent = parent, CreatedAt = DateTime.UtcNow });
+        }
+
+        await db.SaveChangesAsync(ct);
+    }
+
+    // Free-collection mapping activity → OpenStreetMap tags (editable in Admin › Activités; only filled where empty).
+    private static readonly (string Name, string Filter)[] OsmFilters =
+    [
+        ("Location de véhicules", "amenity=car_rental;shop=car_rental"), ("Location de voitures", "amenity=car_rental;shop=car_rental"), ("Alimentation", "shop=supermarket;shop=convenience;shop=greengrocer;shop=bakery"),
+        ("Habillement", "shop=clothes"), ("Électronique", "shop=electronics;shop=mobile_phone"), ("Restaurants", "amenity=restaurant;amenity=fast_food"), ("Cafés", "amenity=cafe"), ("Hôtels", "tourism=hotel"),
+        ("Informatique", "shop=computer;office=it"), ("Comptabilité et conseil", "office=accountant;office=consulting"), ("Transport et logistique", "office=logistics;amenity=bus_station"),
+        ("Cliniques", "amenity=clinic;amenity=hospital;amenity=doctors"), ("Pharmacies", "amenity=pharmacy"), ("Laboratoires", "healthcare=laboratory"), ("Écoles privées", "amenity=school"),
+        ("Centres de formation", "amenity=language_school;amenity=driving_school;office=educational_institution"), ("Agences immobilières", "office=estate_agent"), ("Matériaux", "shop=doityourself;shop=hardware;shop=trade"),
+    ];
+
+    private static async Task SeedOsmFiltersAsync(AppDbContext db, CancellationToken ct)
+    {
+        foreach (var (name, filter) in OsmFilters)
+        {
+            var key = TextNormalizer.NormalizeName(name);
+            foreach (var c in await db.BusinessCategories.Where(x => x.NormalizedName == key && x.OsmFilter == null).ToListAsync(ct)) c.OsmFilter = filter;
         }
 
         await db.SaveChangesAsync(ct);

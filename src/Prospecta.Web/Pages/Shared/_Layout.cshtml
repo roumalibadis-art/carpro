@@ -28,7 +28,9 @@
             @if (Can(Permissions.BusinessView) || Can(Permissions.BusinessViewAll)) { <a href="/Businesses">@Strings.T("nav.businesses")</a> }
             @if (Can(Permissions.BusinessImport)) { <a href="/Imports">@Strings.T("nav.import")</a> }
             @if (Can(Permissions.DuplicateManage)) { <a href="/Duplicates">@Strings.T("nav.duplicates")</a> }
-            <span class="soon" title="Phase 2">@Strings.T("nav.map") <small>@Strings.T("nav.soon")</small></span>
+            @if (Can(Permissions.BusinessView) || Can(Permissions.BusinessViewAll)) { <a href="/Map">@Strings.T("nav.map")</a> }
+            @if (Can(Permissions.CollectionRun)) { <a href="/Collection">@Strings.T("nav.collect")</a><a href="/Refresh">Actualisation</a> }
+            <a href="/Sources">@Strings.T("nav.sources")</a>
             @if (Can(Permissions.ActivityRecord) || Can(Permissions.CampaignManage))
             {
                 <a href="/Campaigns">@Strings.T("nav.campaigns")</a><a href="/Outings">@Strings.T("nav.outings")</a><a href="/Visits">@Strings.T("nav.visits")</a>

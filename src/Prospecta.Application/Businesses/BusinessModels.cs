@@ -54,6 +54,9 @@ public sealed class BusinessFilter
     public bool? HasContactError { get; set; }
     public bool? ChangeReported { get; set; }
     public bool? PendingDuplicate { get; set; }
+    public Guid? CampaignId { get; set; }
+    /// <summary>Businesses that have at least one follow-up past its due date.</summary>
+    public bool? OverdueFollowUp { get; set; }
     public string SortBy { get; set; } = "name";
     public bool SortDesc { get; set; }
     public int Page { get; set; } = 1;

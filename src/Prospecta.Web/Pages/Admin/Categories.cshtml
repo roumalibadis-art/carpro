@@ -2,18 +2,18 @@
 @model Prospecta.Web.Pages.Admin.CategoriesModel
 @{ ViewData["Title"] = "Activités"; }
 <h1>Activités et sous-activités</h1>
-<p class="muted">Liste administrable : aucune activité n'est figée dans le code. Désactiver une activité la retire des formulaires sans toucher aux fiches existantes.</p>
+<p class="muted">Le « filtre OpenStreetMap » (clé=valeur séparés par « ; ») relie l'activité aux étiquettes OpenStreetMap pour la collecte gratuite. Liste administrable : aucune activité n'est figée dans le code. Désactiver une activité la retire des formulaires sans toucher aux fiches existantes.</p>
 @foreach (var root in Model.All.Where(c => c.ParentId is null))
 {
     <section class="card">
         <form method="post" asp-page-handler="Save" class="row" style="align-items:end"><input type="hidden" name="id" value="@root.Id" />
             <div><label>Activité</label><input name="name" value="@root.Name" maxlength="150" required /></div>
-            <label><input type="checkbox" name="active" value="true" checked="@root.IsActive" /> active</label><button type="submit" class="secondary">Enregistrer</button></form>
+            <div><label>Filtre OpenStreetMap</label><input name="osmFilter" value="@root.OsmFilter" maxlength="300" placeholder="amenity=car_rental;shop=car_rental" size="34" /></div><label><input type="checkbox" name="active" value="true" checked="@root.IsActive" /> active</label><button type="submit" class="secondary">Enregistrer</button></form>
         @foreach (var sub in Model.All.Where(c => c.ParentId == root.Id))
         {
             <form method="post" asp-page-handler="Save" class="row" style="align-items:end;margin-left:24px"><input type="hidden" name="id" value="@sub.Id" /><input type="hidden" name="parentId" value="@root.Id" />
                 <div><input name="name" value="@sub.Name" maxlength="150" required aria-label="Sous-activité" /></div>
-                <label><input type="checkbox" name="active" value="true" checked="@sub.IsActive" /> active</label><button type="submit" class="secondary">Enregistrer</button></form>
+                <div><input name="osmFilter" value="@sub.OsmFilter" maxlength="300" placeholder="filtre OSM (facultatif)" aria-label="Filtre OpenStreetMap" size="30" /></div><label><input type="checkbox" name="active" value="true" checked="@sub.IsActive" /> active</label><button type="submit" class="secondary">Enregistrer</button></form>
         }
         <form method="post" asp-page-handler="Save" class="row" style="align-items:end;margin-left:24px"><input type="hidden" name="parentId" value="@root.Id" />
             <div><label>Nouvelle sous-activité</label><input name="name" maxlength="150" required /></div><button type="submit">Ajouter</button></form>

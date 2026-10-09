@@ -5,7 +5,7 @@ using Prospecta.Domain.Common;
 
 namespace Prospecta.Web.Pages.Admin;
 
-public class GeographyModel(ReferenceService service) : AppPage
+public class GeographyModel(ReferenceService service, Prospecta.Application.Collection.TemplateService templates) : AppPage
 {
     /// <summary>Drill-down: the deepest selected node decides which level is listed.</summary>
     [BindProperty(SupportsGet = true)] public Guid? WilayaId { get; set; }
@@ -24,6 +24,8 @@ public class GeographyModel(ReferenceService service) : AppPage
         if (DairaId is { } d && WilayaId is not null) Crumbs.Add(((await service.ListGeoAsync(GeoLevel.Daira, WilayaId, true)).FirstOrDefault(x => x.Id == d)?.Name ?? "Daïra", $"/Admin/Geography?WilayaId={WilayaId}&DairaId={d}"));
         if (CommuneId is { } c && DairaId is not null) Crumbs.Add(((await service.ListGeoAsync(GeoLevel.Commune, DairaId, true)).FirstOrDefault(x => x.Id == c)?.Name ?? "Commune", $"/Admin/Geography?WilayaId={WilayaId}&DairaId={DairaId}&CommuneId={c}"));
     }
+
+    public IActionResult OnGetTemplate() { var f = templates.GeographyTemplate(); return File(f.Content, f.ContentType, f.FileName); }
 
     public string Child(Guid id) => ListLevel switch
     {

@@ -33,6 +33,9 @@ public interface IAppDbContext
     DbSet<Expense> Expenses { get; }
     DbSet<Notification> Notifications { get; }
     DbSet<SystemFlag> SystemFlags { get; }
+    DbSet<DataCollectionJob> CollectionJobs { get; }
+    DbSet<DataCollectionJobResult> CollectionResults { get; }
+    DbSet<ConnectorUsage> ConnectorUsage { get; }
     DbSet<Report> Reports { get; }
     DbSet<ReportSnapshot> ReportSnapshots { get; }
     DbSet<Identity.ApplicationUser> AppUsers { get; }

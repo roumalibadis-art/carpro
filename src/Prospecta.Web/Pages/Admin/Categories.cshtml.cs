@@ -10,11 +10,11 @@ public class CategoriesModel(ReferenceService service) : AppPage
 
     public async Task OnGetAsync() => All = await service.ListCategoriesAsync(null, false, true);
 
-    public async Task<IActionResult> OnPostSaveAsync(Guid? id, string name, Guid? parentId, bool active = false)
+    public async Task<IActionResult> OnPostSaveAsync(Guid? id, string name, Guid? parentId, string? osmFilter, bool active = false)
     {
         try
         {
-            await service.SaveCategoryAsync(id, name, parentId, id is null || active);
+            await service.SaveCategoryAsync(id, name, parentId, id is null || active, osmFilter);
             TempData["Ok"] = "Activité enregistrée.";
         }
         catch (AppException ex) when (ex is ValidationException or ConflictException)

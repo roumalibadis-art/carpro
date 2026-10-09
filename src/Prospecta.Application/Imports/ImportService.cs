@@ -57,7 +57,7 @@ public sealed class ImportService(
         ["googleMapsUrl"] = ("URL Google Maps", ["google maps", "maps", "url google maps", "lien maps"]),
         ["sourceUrl"] = ("URL source", ["source", "url source", "lien source"]),
         ["description"] = ("Description", ["description", "details", "observations"]),
-        ["externalId"] = ("Identifiant fournisseur", ["place id", "place_id", "id fournisseur", "identifiant"]),
+        ["externalId"] = ("Identifiant fournisseur", ["place id", "place_id", "id fournisseur", "identifiant", "identifiant fournisseur"]),
     };
 
     private ImportOptions Opt => options.Value;

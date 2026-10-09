@@ -11,8 +11,35 @@ using Prospecta.Application.Security;
 namespace Prospecta.IntegrationTests.Support;
 
 /// <summary>Boots the real app over an in-memory SQLite database (one factory per test class = isolated data).</summary>
-public sealed class ApiFactory : WebApplicationFactory<Program>
+/// <summary>Stands in for the public Overpass servers: no test ever calls the real internet.</summary>
+public sealed class FakeOverpassHandler : HttpMessageHandler
 {
+    public static Func<HttpRequestMessage, string, HttpResponseMessage> Responder { get; set; } = (_, _) => new HttpResponseMessage(System.Net.HttpStatusCode.ServiceUnavailable);
+    public static List<string> Queries { get; } = [];
+    public static int Calls;
+
+    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct)
+    {
+        var body = request.Content is null ? "" : await request.Content.ReadAsStringAsync(ct);
+        Interlocked.Increment(ref Calls);
+        lock (Queries) Queries.Add(Uri.UnescapeDataString(body.Replace("+", " ")));
+        return Responder(request, body);
+    }
+
+    public static HttpResponseMessage Json(string json) => new(System.Net.HttpStatusCode.OK) { Content = new StringContent(json, System.Text.Encoding.UTF8, "application/json") };
+}
+
+/// <summary>Replaces the real page fetcher so URL inspection can be tested without internet.</summary>
+public sealed class FakePageFetcher : Prospecta.Application.Collection.IPublicPageFetcher
+{
+    public static Func<string, Prospecta.Application.Collection.PageFetch> Responder { get; set; } = u => throw new Prospecta.Application.Collection.ConnectorException("Site injoignable (test).");
+
+    public Task<Prospecta.Application.Collection.PageFetch> FetchAsync(string url, CancellationToken ct) => Task.FromResult(Responder(url));
+}
+
+public class ApiFactory : WebApplicationFactory<Program>
+{
+    protected virtual Dictionary<string, string?> ExtraConfig => [];
     public const string AdminEmail = "admin@test.local";
     public const string AdminPassword = "Admin#Test2026";
     private readonly SqliteConnection _connection = new("DataSource=:memory:");
@@ -44,7 +71,13 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
             ["Jwt:Secret"] = "integration-tests-secret-key-0123456789-abcdef",
             ["RateLimit:LoginPerMinute"] = "1000",
             ["Notifications:Enabled"] = "false",
-        }));
+            ["Collection:Osm:MinSecondsBetweenCalls"] = "0",
+        }).AddInMemoryCollection(ExtraConfig));
+        builder.ConfigureServices(s =>
+        {
+            s.AddHttpClient("overpass").ConfigurePrimaryHttpMessageHandler(() => new FakeOverpassHandler());
+            s.AddSingleton<Prospecta.Application.Collection.IPublicPageFetcher, FakePageFetcher>();
+        });
         if (MySqlBase is not null) return;
         builder.ConfigureServices(s =>
         {

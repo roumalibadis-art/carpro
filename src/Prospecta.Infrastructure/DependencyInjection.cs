@@ -32,6 +32,9 @@ public static class DependencyInjection
         });
         services.AddScoped<IAppDbContext>(sp => sp.GetRequiredService<AppDbContext>());
         services.AddMemoryCache();
+        services.AddHttpClient("overpass");
+        services.AddScoped<Prospecta.Application.Collection.IOverpassClient, Prospecta.Infrastructure.Collection.OverpassClient>();
+        services.AddSingleton<Prospecta.Application.Collection.IPublicPageFetcher, Prospecta.Infrastructure.Collection.SafePageFetcher>();
         services.AddSingleton<Prospecta.Application.Abstractions.IReportPdfRenderer, Prospecta.Infrastructure.Reporting.PdfReportRenderer>();
         services.AddScoped<IPermissionStore, PermissionStore>();
 

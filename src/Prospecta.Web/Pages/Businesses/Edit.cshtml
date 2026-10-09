@@ -23,7 +23,7 @@
         <div><label>Plus Code</label><input asp-for="Input.PlusCode" maxlength="30" /></div>
         <div><label>Téléphone professionnel public</label><input asp-for="Input.Phone" type="tel" placeholder="0555 12 34 56" /></div>
         <div><label>Site web</label><input asp-for="Input.Website" type="url" maxlength="300" placeholder="https://" /></div>
-        <div><label>URL fiche Google Maps</label><input asp-for="Input.GoogleMapsUrl" type="url" maxlength="500" /></div>
+        <div><label>URL fiche Google Maps (collez le lien relevé à la main)</label><input asp-for="Input.GoogleMapsUrl" id="gmaps" type="url" maxlength="500" /><button type="button" class="secondary" id="gmaps-extract">Extraire les coordonnées</button><span id="gmaps-msg" class="muted" role="status"></span></div>
         <div><label>URL de la page publique source</label><input asp-for="Input.SourceUrl" type="url" maxlength="500" /></div>
     </div>
     <p><label>Description</label><textarea asp-for="Input.Description" maxlength="2000"></textarea></p>

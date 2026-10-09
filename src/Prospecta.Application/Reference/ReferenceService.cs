@@ -8,7 +8,7 @@ using Prospecta.Domain.Geography;
 namespace Prospecta.Application.Reference;
 
 public sealed record GeoDto(Guid Id, GeoLevel Level, string Code, string Name, Guid? ParentId, double? Latitude, double? Longitude, bool IsActive);
-public sealed record CategoryDto(Guid Id, string Name, Guid? ParentId, bool IsActive);
+public sealed record CategoryDto(Guid Id, string Name, Guid? ParentId, bool IsActive, string? OsmFilter = null);
 public sealed record StatusDto(Guid Id, StatusKind Kind, string Code, string Label, int SortOrder, bool IsActive, bool IsSystem);
 
 public sealed class GeoSave
@@ -152,10 +152,10 @@ public sealed class ReferenceService(IAppDbContext db, ICurrentUser user, IAudit
         if (!includeInactive) q = q.Where(c => c.IsActive);
         if (rootsOnly) q = q.Where(c => c.ParentId == null);
         if (parentId is not null) q = q.Where(c => c.ParentId == parentId);
-        return await q.OrderBy(c => c.Name).Take(2000).Select(c => new CategoryDto(c.Id, c.Name, c.ParentId, c.IsActive)).ToListAsync(ct);
+        return await q.OrderBy(c => c.Name).Take(2000).Select(c => new CategoryDto(c.Id, c.Name, c.ParentId, c.IsActive, c.OsmFilter)).ToListAsync(ct);
     }
 
-    public async Task<CategoryDto> SaveCategoryAsync(Guid? id, string name, Guid? parentId, bool isActive, CancellationToken ct = default)
+    public async Task<CategoryDto> SaveCategoryAsync(Guid? id, string name, Guid? parentId, bool isActive, string? osmFilter = null, CancellationToken ct = default)
     {
         RequireManage();
         if (string.IsNullOrWhiteSpace(name) || name.Length > 150) throw new ValidationException("Le nom est obligatoire (150 caractères max).");
@@ -165,6 +165,8 @@ public sealed class ReferenceService(IAppDbContext db, ICurrentUser user, IAudit
             if (parent is null || parent.ParentId is not null) throw new ValidationException("Les activités ont deux niveaux : activité puis sous-activité.");
         }
 
+        var filters = (osmFilter ?? "").Split(new[] { ';', '\n' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
+        if (filters.Any(f => !Collection.OverpassQuery.IsValidFilter(f)) || filters.Count > 10) throw new ValidationException("Filtre OpenStreetMap invalide : utilisez « clé=valeur » séparés par « ; » (ex. amenity=car_rental;shop=car_rental).");
         var normalized = TextNormalizer.NormalizeName(name);
         if (await db.BusinessCategories.AnyAsync(c => c.Id != id && c.ParentId == parentId && c.NormalizedName == normalized, ct))
             throw new ConflictException($"« {name.Trim()} » existe déjà.");
@@ -184,9 +186,10 @@ public sealed class ReferenceService(IAppDbContext db, ICurrentUser user, IAudit
         cat.NormalizedName = normalized;
         cat.ParentId = parentId;
         cat.IsActive = isActive;
+        cat.OsmFilter = filters.Count == 0 ? null : string.Join(";", filters);
         audit.Record(id is null ? "category.create" : "category.update", "BusinessCategory", cat.Id, cat.Name);
         await db.SaveChangesAsync(ct);
-        return new CategoryDto(cat.Id, cat.Name, cat.ParentId, cat.IsActive);
+        return new CategoryDto(cat.Id, cat.Name, cat.ParentId, cat.IsActive, cat.OsmFilter);
     }
 
     // ---------- Statuses ----------

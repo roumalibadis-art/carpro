@@ -1,0 +1,14 @@
+@page
+@model Prospecta.Web.Pages.Sources.IndexModel
+@{ ViewData["Title"] = "Sources de données"; }
+<h1>Sources de données</h1>
+<p class="muted">Aucune source payante ni à clé n'est utilisée. Une source sans solution gratuite fiable n'est <b>pas</b> présentée comme intégrée : elle passe par le modèle Excel.</p>
+<div class="row"><a class="btn" href="/Imports">Importer un fichier</a><a class="btn secondary" href="/Imports/Template?format=xlsx">Modèle Excel</a><a class="btn secondary" href="/Imports/Template?format=csv">Modèle CSV</a>
+    <a class="btn secondary" href="/Collection">Recherche et collecte</a><a class="btn secondary" href="/Businesses/FromUrl">Ajouter depuis une URL</a></div>
+@foreach (var c in Model.Connectors)
+{
+    var (label, css) = Prospecta.Web.Pages.Sources.IndexModel.Badge(c.State);
+    <section class="card"><div class="row" style="justify-content:space-between"><h2 style="margin:0">@c.Name</h2><span class="badge @css">@label</span></div>
+        <p>@c.Description</p><p class="muted"><b>Configuration / alternative :</b> @c.Setup</p>@if (c.Quota is not null) { <p class="muted">@c.Quota</p> }</section>
+}
+<p class="muted">Données OpenStreetMap © contributeurs OpenStreetMap, licence ODbL — <a href="https://www.openstreetmap.org/copyright" rel="noopener noreferrer" target="_blank">openstreetmap.org/copyright</a>.</p>

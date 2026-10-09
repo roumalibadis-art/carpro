@@ -7,6 +7,7 @@ using Prospecta.Application.Security;
 using Prospecta.Domain.Businesses;
 using Prospecta.Domain.Common;
 using Prospecta.Domain.Geography;
+using Prospecta.Domain.Prospecting;
 
 namespace Prospecta.Application.Businesses;
 
@@ -72,6 +73,14 @@ public sealed class BusinessService(IAppDbContext db, ICurrentUser user, IAuditS
         if (f.HasCoordinates is { } hc) q = hc ? q.Where(b => b.Latitude != null && b.Longitude != null) : q.Where(b => b.Latitude == null || b.Longitude == null);
         if (f.HasContactError is { } ce) q = q.Where(b => b.HasContactError == ce);
         if (f.ChangeReported is { } cr) q = q.Where(b => b.ChangeReported == cr);
+        if (f.CampaignId is { } camp) q = q.Where(b => db.CampaignTargets.Any(t => t.CampaignId == camp && t.BusinessId == b.Id));
+        if (f.OverdueFollowUp is { } od)
+        {
+            var today = Prospecting.Dates.Today(clock);
+            q = od ? q.Where(b => db.FollowUps.Any(x => x.BusinessId == b.Id && x.Status == FollowUpStatus.ToDo && x.DueDate < today))
+                   : q.Where(b => !db.FollowUps.Any(x => x.BusinessId == b.Id && x.Status == FollowUpStatus.ToDo && x.DueDate < today));
+        }
+
         if (f.PendingDuplicate is { } pd)
         {
             q = pd
@@ -127,6 +136,17 @@ public sealed class BusinessService(IAppDbContext db, ICurrentUser user, IAuditS
                           join u in db.AppUsers on a.UserId equals u.Id
                           select new { a.BusinessId, u.FullName }).ToListAsync(ct);
         return rows.GroupBy(r => r.BusinessId).ToDictionary(g => g.Key, g => g.Select(x => x.FullName).OrderBy(x => x).ToList());
+    }
+
+    public sealed record MapPoint(Guid Id, string Name, double Lat, double Lon, string? Commune, string? Category, string Census, string CensusCode, string Processing);
+
+    /// <summary>Businesses with coordinates inside the caller's scope and filters (capped; the list tells when more exist).</summary>
+    public async Task<(IReadOnlyList<MapPoint> Points, int Total)> MapPointsAsync(BusinessFilter f, int max = 2000, CancellationToken ct = default)
+    {
+        var q = Filtered(f).Where(b => b.Latitude != null && b.Longitude != null).AsNoTracking();
+        var total = await q.CountAsync(ct);
+        var rows = await q.OrderBy(b => b.Id).Take(Math.Clamp(max, 1, 5000)).Select(b => new { b.Id, b.Name, Lat = b.Latitude!.Value, Lon = b.Longitude!.Value, C = b.Commune!.Name, Cat = b.Category!.Name, Census = b.CensusStatus!.Label, Code = b.CensusStatus.Code, Proc = b.ProcessingStatus!.Label }).ToListAsync(ct);
+        return (rows.Select(r => new MapPoint(r.Id, r.Name, r.Lat, r.Lon, r.C, r.Cat, r.Census, r.Code, r.Proc)).ToList(), total);
     }
 
     // ---------- Read ----------
@@ -316,7 +336,11 @@ public sealed class BusinessService(IAppDbContext db, ICurrentUser user, IAuditS
         return b;
     }
 
-    public async Task<SaveResult> CreateAsync(BusinessInput input, CancellationToken ct = default)
+    public Task<SaveResult> CreateAsync(BusinessInput input, CancellationToken ct = default) =>
+        CreateWithSourceAsync(input, FieldOrigin.Manual, new SourceInfo(SourceType.Manual, "manual"), ct);
+
+    /// <summary>Creates a business from a reviewed external value (public page, map link…): the origin and source are recorded with it.</summary>
+    public async Task<SaveResult> CreateWithSourceAsync(BusinessInput input, FieldOrigin origin, SourceInfo source, CancellationToken ct = default)
     {
         RequireAuth();
         if (!user.HasPermission(Permissions.BusinessCreate)) throw new ForbiddenException();
@@ -324,7 +348,7 @@ public sealed class BusinessService(IAppDbContext db, ICurrentUser user, IAuditS
         if (errors.Count > 0) throw new ValidationException(errors);
 
         await using var tx = await UnitOfWork.BeginAsync(db.Database, ct);
-        var b = await BuildNewAsync(input, FieldOrigin.Manual, new SourceInfo(SourceType.Manual, "manual"), ct);
+        var b = await BuildNewAsync(input, origin, source, ct);
         // The creator of a record stays able to work on it even without organization-wide visibility.
         if (!SeesAll)
         {

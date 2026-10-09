@@ -38,6 +38,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<Expense> Expenses => Set<Expense>();
     public DbSet<Notification> Notifications => Set<Notification>();
     public DbSet<SystemFlag> SystemFlags => Set<SystemFlag>();
+    public DbSet<DataCollectionJob> CollectionJobs => Set<DataCollectionJob>();
+    public DbSet<DataCollectionJobResult> CollectionResults => Set<DataCollectionJobResult>();
+    public DbSet<ConnectorUsage> ConnectorUsage => Set<ConnectorUsage>();
     public DbSet<Report> Reports => Set<Report>();
     public DbSet<ReportSnapshot> ReportSnapshots => Set<ReportSnapshot>();
     public DbSet<ApplicationUser> AppUsers => Set<ApplicationUser>();
@@ -311,5 +314,30 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
             e.HasOne(r => r.Report).WithMany(r => r.Snapshots).HasForeignKey(r => r.ReportId).OnDelete(DeleteBehavior.Cascade);
             e.HasIndex(r => r.ReportId);
         });
+
+        m.Entity<DataCollectionJob>(e =>
+        {
+            e.Property(j => j.ConnectorKey).HasMaxLength(40);
+            e.Property(j => j.ParametersJson).HasMaxLength(2000);
+            e.Property(j => j.Message).HasMaxLength(1000);
+            e.HasIndex(j => new { j.UserId, j.CreatedAt });
+            e.HasIndex(j => j.CreatedAt);
+        });
+        m.Entity<DataCollectionJobResult>(e =>
+        {
+            e.Property(r => r.ExternalId).HasMaxLength(100);
+            e.Property(r => r.Name).HasMaxLength(200);
+            e.Property(r => r.MatchReason).HasMaxLength(500);
+            e.Property(r => r.PayloadJson).HasColumnType(Database.IsMySql() ? "longtext" : "TEXT");
+            e.HasOne(r => r.Job).WithMany().HasForeignKey(r => r.JobId).OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(r => new { r.JobId, r.Status });
+            e.HasIndex(r => r.ExternalId);
+        });
+        m.Entity<ConnectorUsage>(e =>
+        {
+            e.HasKey(u => new { u.ConnectorKey, u.Day });
+            e.Property(u => u.ConnectorKey).HasMaxLength(64);
+        });
+        m.Entity<BusinessCategory>().Property(c => c.OsmFilter).HasMaxLength(300);
     }
 }

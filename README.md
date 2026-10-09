@@ -5,13 +5,13 @@ puis (phases suivantes) organiser les sorties commerciales et produire les rappo
 
 > Dépôt indépendant de `school` (USTHB Study). Voir `docs/architecture.md`, `docs/roadmap.md`, `docs/security.md`.
 
-## État (Phases 1 et 2)
+## État (Phases 1 à 4)
 Terminé : authentification (cookie + JWT, verrouillage, limitation de débit), utilisateurs/rôles/permissions serveur, référentiels (géographie hiérarchique,
 activités, statuts configurables), fiches entreprises (CRUD, provenance par champ, historique, vérification, suppression logique), 3 états indépendants
 (recensement / traitement / résultat), filtres combinables + vues enregistrées + tri + pagination + colonnes configurables, affectation et actions en masse,
 import CSV/Excel (aperçu, mapping, validation, doublons, compte rendu), export CSV/Excel filtré selon les droits, détection de doublons + comparaison + fusion,
 journal d'audit, tableau de bord de recensement, import CSV de la géographie officielle.
-Phase 2 : campagnes, cibles/affectations, sorties, visites et appels (historique complet), relances, dépenses, notifications internes.
+Phase 3 : indicateurs, rapports A–D (PDF/Excel, instantanés). Phase 4 : collecte **gratuite et sans clé** (OpenStreetMap, URL publiques, modèle Excel), actualisation, carte. Phase 2 : campagnes, cibles/affectations, sorties, visites et appels (historique complet), relances, dépenses, notifications internes.
 **Non fait (annoncé « bientôt » dans l'UI)** : rapports PDF/Excel et indicateurs (phase 3) ;
 connecteurs Google Places & sources publiques (phase 4) ; carte, tests E2E complets (phase 5). Aucun connecteur externe n'existe encore : rien n'est simulé.
 

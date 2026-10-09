@@ -23,6 +23,8 @@ public class BusinessCategory : Entity
     public string NormalizedName { get; set; } = string.Empty;
     public Guid? ParentId { get; set; }
     public BusinessCategory? Parent { get; set; }
+    /// <summary>OpenStreetMap tag filters for free collection, e.g. "amenity=car_rental;shop=car_rental" (administrable).</summary>
+    public string? OsmFilter { get; set; }
     public bool IsActive { get; set; } = true;
 }
 
