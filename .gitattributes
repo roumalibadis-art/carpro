@@ -1,0 +1,28 @@
+# Normalize line endings: LF in the repo, checked out native on Windows for most files.
+* text=auto
+
+# Force LF for cross-platform tooling and scripts
+*.sh          text eol=lf
+*.cs          text eol=lf diff=csharp
+*.csproj      text eol=lf
+*.props       text eol=lf
+*.targets     text eol=lf
+*.json        text eol=lf
+*.yml         text eol=lf
+*.yaml        text eol=lf
+*.md          text eol=lf
+Dockerfile    text eol=lf
+*.ts          text eol=lf
+*.tsx         text eol=lf
+*.js          text eol=lf
+*.jsx         text eol=lf
+
+# Binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.woff binary
+*.woff2 binary

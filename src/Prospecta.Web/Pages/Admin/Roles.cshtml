@@ -1,0 +1,13 @@
+@page
+@model Prospecta.Web.Pages.Admin.RolesModel
+@{ ViewData["Title"] = "Permissions"; }
+<h1>Rôles et permissions</h1>
+<p class="muted">Les permissions sont vérifiées côté serveur à chaque requête. « Business.View » donne accès aux entreprises affectées ; « Business.ViewAll » à toute l'organisation.</p>
+@foreach (var r in Model.RoleList)
+{
+    <form method="post" class="card"><input type="hidden" name="role" value="@r.Name" />
+        <h2>@r.Name</h2>
+        <div class="grid">@foreach (var p in Permissions.All) { <label><input type="checkbox" name="p_@(r.Name)_@p" checked="@r.Permissions.Contains(p)" /> @p</label> }</div>
+        <div class="actions"><button type="submit" data-confirm="Modifier les permissions du rôle @r.Name ?">Enregistrer</button></div>
+    </form>
+}

@@ -1,0 +1,20 @@
+@page
+@model LoginModel
+@{ Layout = null; ViewData["Title"] = "Connexion"; }
+<!doctype html>
+<html lang="fr">
+<head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>Connexion · Prospecta</title><link rel="stylesheet" href="~/css/site.css" asp-append-version="true" /></head>
+<body class="bare">
+<main class="card">
+    <h1>Prospecta</h1>
+    <p class="muted">Recensement, prospection et rapports d'étude.</p>
+    @if (!ModelState.IsValid) { <div class="alert err" role="alert">@Html.ValidationSummary(true)</div> }
+    <form method="post">
+        <input type="hidden" asp-for="ReturnUrl" />
+        <p><label asp-for="Email">Adresse e-mail</label><input asp-for="Email" type="email" autocomplete="username" required style="width:100%" /></p>
+        <p><label asp-for="Password">Mot de passe</label><input asp-for="Password" type="password" autocomplete="current-password" required style="width:100%" /></p>
+        <button type="submit" style="width:100%">Se connecter</button>
+    </form>
+</main>
+</body>
+</html>

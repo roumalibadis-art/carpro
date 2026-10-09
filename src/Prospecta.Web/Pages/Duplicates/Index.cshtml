@@ -1,0 +1,31 @@
+@page
+@model Prospecta.Web.Pages.Duplicates.IndexModel
+@{ ViewData["Title"] = "Doublons potentiels"; }
+<div class="row" style="justify-content:space-between;align-items:center">
+    <h1>Doublons potentiels</h1>
+    <form method="post" asp-page-handler="Rescan" data-confirm="Relancer l'analyse sur les 500 premières fiches ?"><button type="submit" class="secondary">Relancer l'analyse</button></form>
+</div>
+<p class="muted">Les fiches ne sont jamais fusionnées automatiquement : chaque couple est examiné par une personne.</p>
+<form method="get" class="card row" style="align-items:end">
+    <div><label>État</label><select asp-for="Status" asp-items="Html.GetEnumSelectList<DuplicateStatus>()" data-autosubmit></select></div>
+    <noscript><button type="submit">Filtrer</button></noscript>
+</form>
+@if (Model.Result.Items.Count == 0) { <div class="card">@Strings.T("common.empty")</div> }
+else
+{
+    <div class="tablewrap"><table class="responsive">
+        <thead><tr><th>Score</th><th>Fiche A</th><th>Fiche B</th><th>Raisons</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var d in Model.Result.Items)
+        {
+            <tr>
+                <td data-label="Score"><span class="badge @(d.Strong ? "bad" : "warn")">@d.Score.ToString("P0")</span></td>
+                <td data-label="A">@d.A.Name<br /><span class="muted">@(d.A.Commune ?? "—") · @(d.A.Phone ?? "—")</span></td>
+                <td data-label="B">@d.B.Name<br /><span class="muted">@(d.B.Commune ?? "—") · @(d.B.Phone ?? "—")</span></td>
+                <td data-label="Raisons">@string.Join(" · ", d.Reasons)</td>
+                <td><a class="btn secondary" href="/Duplicates/Compare/@d.Id">Comparer</a></td>
+            </tr>
+        }
+        </tbody></table></div>
+    <partial name="_Pager" model="(Model.Result.Page, Model.Result.TotalPages, Model.Result.Total)" />
+}

@@ -1,0 +1,148 @@
+@page
+@model Prospecta.Web.Pages.Businesses.IndexModel
+@{
+    ViewData["Title"] = "Entreprises";
+    ViewData["PageKey"] = "Filter.Page";
+    var f = Model.Filter;
+    var qs = Request.QueryString.Value ?? "";
+    bool CanAssign = User.HasClaim(Permissions.ClaimType, Permissions.BusinessAssign);
+    bool CanEdit = User.HasClaim(Permissions.ClaimType, Permissions.BusinessEdit);
+    var triState = new[] { new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem("—", ""), new("Oui", "true"), new("Non", "false") };
+}
+<div class="row" style="justify-content:space-between;align-items:center">
+    <h1>Entreprises</h1>
+    @if (User.HasClaim(Permissions.ClaimType, Permissions.BusinessCreate)) { <a class="btn" href="/Businesses/Edit">+ @Strings.T("action.new")</a> }
+</div>
+
+<form method="get" class="card">
+    <div class="filters">
+        <div><label>Recherche (nom, adresse, téléphone, site)</label><input asp-for="Filter.Search" type="search" /></div>
+        <div data-geo-chain style="display:contents">
+            <div><label>Wilaya</label><select data-geo asp-for="Filter.WilayaId" asp-items="Model.Wilayas"></select></div>
+            <div><label>Daïra</label><select data-geo data-placeholder="Toutes" asp-for="Filter.DairaId" asp-items="Model.Dairas"></select></div>
+            <div><label>Commune</label><select data-geo data-placeholder="Toutes" asp-for="Filter.CommuneId" asp-items="Model.Communes"></select></div>
+            <div><label>Quartier</label><select data-geo data-placeholder="Tous" asp-for="Filter.DistrictId" asp-items="Model.Districts"></select></div>
+        </div>
+        <div><label>Activité</label><select data-category-root="sub" asp-for="Filter.CategoryId" asp-items="Model.Categories"></select></div>
+        <div><label>Sous-activité</label><select id="sub" data-placeholder="Toutes" asp-for="Filter.SubCategoryId" asp-items="Model.SubCategories"></select></div>
+        <div><label>Source</label><select asp-for="Filter.SourceType" asp-items="Html.GetEnumSelectList<SourceType>()"><option value="">—</option></select></div>
+        <div><label>Utilisateur responsable</label><select asp-for="Filter.ResponsibleUserId" asp-items="Model.Users"></select></div>
+        <div><label>État du recensement</label><select asp-for="Filter.CensusStatusId" asp-items="Model.CensusStatuses"></select></div>
+        <div><label>Traitement</label><select asp-for="Filter.ProcessingStatusId" asp-items="Model.ProcessingStatuses"></select></div>
+        <div><label>Résultat commercial</label><select asp-for="Filter.OutcomeStatusId" asp-items="Model.OutcomeStatuses"></select></div>
+        <div><label>Priorité</label><select asp-for="Filter.Priority" asp-items="Html.GetEnumSelectList<Priority>()"><option value="">—</option></select></div>
+        <div><label>Collectée du</label><input type="date" asp-for="Filter.CollectedFrom" /></div>
+        <div><label>au</label><input type="date" asp-for="Filter.CollectedTo" /></div>
+        <div><label>Vérifiée du</label><input type="date" asp-for="Filter.VerifiedFrom" /></div>
+        <div><label>au</label><input type="date" asp-for="Filter.VerifiedTo" /></div>
+        <div><label>À revérifier (jamais ou avant le)</label><input type="date" asp-for="Filter.StaleBefore" /></div>
+        <div><label>Complétude min %</label><input type="number" min="0" max="100" asp-for="Filter.MinCompleteness" /></div>
+        <div><label>Complétude max %</label><input type="number" min="0" max="100" asp-for="Filter.MaxCompleteness" /></div>
+        <div><label>A un téléphone</label><select asp-for="Filter.HasPhone" asp-items="triState"></select></div>
+        <div><label>A un site web</label><select asp-for="Filter.HasWebsite" asp-items="triState"></select></div>
+        <div><label>A des coordonnées</label><select asp-for="Filter.HasCoordinates" asp-items="triState"></select></div>
+        <div><label>Erreur de contact</label><select asp-for="Filter.HasContactError" asp-items="triState"></select></div>
+        <div><label>Changement signalé</label><select asp-for="Filter.ChangeReported" asp-items="triState"></select></div>
+        <div><label>Doublon potentiel</label><select asp-for="Filter.PendingDuplicate" asp-items="triState"></select></div>
+        <div><label>Par page</label><select asp-for="Filter.PageSize" asp-items='new[] { new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem("25","25"), new("50","50"), new("100","100") }'></select></div>
+    </div>
+    <p class="muted">Filtres « relance en retard » et « campagne » : disponibles avec le module Campagnes / Relances (phase 2).</p>
+    <div class="actions">
+        <button type="submit">@Strings.T("action.search")</button>
+        <a class="btn secondary" href="/Businesses">@Strings.T("action.reset")</a>
+        @if (User.HasClaim(Permissions.ClaimType, Permissions.BusinessExport))
+        {
+            <a class="btn secondary" href="/Businesses?handler=Export&format=csv&@(qs.TrimStart('?'))">Export CSV</a>
+            <a class="btn secondary" href="/Businesses?handler=Export&format=xlsx&@(qs.TrimStart('?'))">Export Excel</a>
+        }
+        <details class="colpick"><summary class="btn secondary">Colonnes</summary>
+            <div class="card" style="position:absolute;z-index:3">
+                @foreach (var (key, label) in new[] { ("activity", "Activité"), ("phone", "Téléphone"), ("website", "Site web"), ("priority", "Priorité"), ("completeness", "Complétude"), ("resp", "Responsables"), ("collected", "Collecte"), ("verified", "Vérification") })
+                { <label><input type="checkbox" data-col-toggle="@key" checked /> @label</label> }
+            </div></details>
+    </div>
+</form>
+
+<form method="get" class="card row" style="align-items:end">
+    <div><label>Vues enregistrées</label>
+        <select name="ViewId" data-autosubmit>
+            <option value="">— choisir une vue —</option>
+            @foreach (var v in Model.Views) { <option value="@v.Id" selected="@(Model.ViewId == v.Id)">@v.Name@(v.Scope == SavedFilterScope.Shared ? " (équipe)" : "")</option> }
+        </select></div>
+    @if (Model.ViewId is { } vid && Model.Views.Any(v => v.Id == vid && v.Mine))
+    {
+        <button type="submit" class="secondary" formmethod="post" asp-page-handler="DeleteView" asp-route-id="@vid" data-confirm="Supprimer cette vue ?">Supprimer la vue</button>
+    }
+</form>
+<form method="post" asp-page-handler="SaveView" class="card row" style="align-items:end">
+    <input type="hidden" name="returnQuery" value="@qs" />
+    <div><label>Enregistrer les filtres actuels sous le nom</label><input name="viewName" maxlength="80" required /></div>
+    @if (User.HasClaim(Permissions.ClaimType, Permissions.BusinessViewAll)) { <label><input type="checkbox" name="shared" value="true" /> Partager avec l'équipe</label> }
+    <button type="submit">Enregistrer la vue</button>
+</form>
+
+<form method="post" asp-page-handler="Bulk" id="bulkform">
+    <input type="hidden" name="returnQuery" value="@qs" />
+    @if (CanAssign || CanEdit)
+    {
+        <div class="card row" style="align-items:end">
+            <span class="muted">Actions sur la sélection :</span>
+            @if (CanAssign)
+            {
+                <div><label>Affecter à</label><select name="userId" asp-items="Model.Users"></select></div>
+                <button type="submit" name="bulk" value="assign" data-confirm="Affecter les entreprises sélectionnées à cet utilisateur ?">Affecter</button>
+            }
+            @if (CanEdit)
+            {
+                <div><label>Changer un statut</label>
+                    <select name="statusId">
+                        <option value="">—</option>
+                        <optgroup label="Recensement">@foreach (var s in Model.CensusStatuses.Skip(1)) { <option value="@s.Value" data-kind="Census">@s.Text</option> }</optgroup>
+                        <optgroup label="Traitement">@foreach (var s in Model.ProcessingStatuses.Skip(1)) { <option value="@s.Value" data-kind="Processing">@s.Text</option> }</optgroup>
+                        <optgroup label="Résultat">@foreach (var s in Model.OutcomeStatuses.Skip(1)) { <option value="@s.Value" data-kind="Outcome">@s.Text</option> }</optgroup>
+                    </select></div>
+                <div><label>Dimension</label><select name="kind"><option value="Census">Recensement</option><option value="Processing">Traitement</option><option value="Outcome">Résultat</option></select></div>
+                <button type="submit" name="bulk" value="status" data-confirm="Appliquer ce statut à toutes les entreprises sélectionnées ?">Appliquer</button>
+            }
+        </div>
+    }
+    @if (Model.Result.Items.Count == 0)
+    {
+        <div class="card"><p>@Strings.T("common.empty")</p><p class="muted">Modifiez ou réinitialisez les filtres, ou importez une liste d'entreprises.</p></div>
+    }
+    else
+    {
+        <div class="tablewrap"><table class="responsive" id="biztable">
+            <thead><tr>
+                <th><input type="checkbox" data-select-all=".rowcheck" aria-label="Tout sélectionner" /></th>
+                <th><a href="@Model.QueryWith("name")">Nom</a></th>
+                <th data-col="activity">Activité</th><th><a href="@Model.QueryWith("commune")">Commune</a></th>
+                <th data-col="phone">Téléphone</th><th data-col="website">Site</th>
+                <th>Recensement</th><th>Traitement</th><th>Résultat</th>
+                <th data-col="priority">Priorité</th><th data-col="completeness"><a href="@Model.QueryWith("completeness")">Compl.</a></th>
+                <th data-col="resp">Responsables</th><th data-col="collected"><a href="@Model.QueryWith("collected")">Collecte</a></th><th data-col="verified"><a href="@Model.QueryWith("verified")">Vérifiée</a></th>
+            </tr></thead>
+            <tbody>
+            @foreach (var b in Model.Result.Items)
+            {
+                <tr>
+                    <td><input class="rowcheck" type="checkbox" name="ids" value="@b.Id" aria-label="Sélectionner @b.Name" /></td>
+                    <td data-label="Nom"><a href="/Businesses/Details/@b.Id">@b.Name</a>@if (b.PendingDuplicate) { <span class="badge warn" title="Doublon potentiel">doublon ?</span> }</td>
+                    <td data-col="activity" data-label="Activité">@(b.SubCategory ?? b.Category ?? Strings.T("common.none"))</td>
+                    <td data-label="Commune">@(b.Commune ?? b.Wilaya ?? Strings.T("common.none"))</td>
+                    <td data-col="phone" data-label="Téléphone">@(b.Phone ?? Strings.T("common.none"))</td>
+                    <td data-col="website" data-label="Site">@if (b.Website is not null) { <a href="@b.Website" rel="noopener noreferrer nofollow" target="_blank">lien</a> } else { <span class="muted">@Strings.T("common.none")</span> }</td>
+                    <td data-label="Recensement"><span class="badge @(b.CensusStatus.Code == "verified" ? "ok" : b.CensusStatus.Code == "potential_duplicate" ? "warn" : "")">@b.CensusStatus.Label</span></td>
+                    <td data-label="Traitement"><span class="badge">@b.ProcessingStatus.Label</span></td>
+                    <td data-label="Résultat"><span class="badge">@b.OutcomeStatus.Label</span></td>
+                    <td data-col="priority" data-label="Priorité">@b.Priority</td>
+                    <td data-col="completeness" data-label="Complétude">@b.Completeness %</td>
+                    <td data-col="resp" data-label="Responsables">@(b.Responsible.Count == 0 ? "—" : string.Join(", ", b.Responsible))</td>
+                    <td data-col="collected" data-label="Collecte">@b.CollectedAt.ToString("dd/MM/yyyy")</td>
+                    <td data-col="verified" data-label="Vérifiée">@(b.LastVerifiedAt?.ToString("dd/MM/yyyy") ?? "jamais")</td>
+                </tr>
+            }
+            </tbody></table></div>
+        <partial name="_Pager" model="(Model.Result.Page, Model.Result.TotalPages, Model.Result.Total)" />
+    }
+</form>

@@ -1,0 +1,15 @@
+@page "{id:guid}"
+@model Prospecta.Web.Pages.Admin.UserEditModel
+@{ ViewData["Title"] = "Modifier l'utilisateur"; }
+<h1>@Model.Data.Email</h1>
+@if (!ModelState.IsValid) { <div class="alert err" role="alert"><ul>@foreach (var e in ModelState.Values.SelectMany(v => v.Errors)) { <li>@e.ErrorMessage</li> }</ul></div> }
+<form method="post" class="card"><div class="filters">
+    <div><label>Nom complet</label><input asp-for="FullName" required maxlength="120" /></div>
+    <div><label>Rôle</label><select asp-for="Role"><option value="Salesperson">Commercial</option><option value="SalesManager">Responsable commercial</option><option value="Admin">Administrateur</option></select></div>
+    <div><label>Responsable hiérarchique</label><select asp-for="ManagerId" asp-items="Model.Managers"></select></div>
+    <div><label><input type="checkbox" asp-for="IsActive" /> Compte actif</label></div>
+</div><div class="actions"><button type="submit">@Strings.T("action.save")</button><a class="btn secondary" href="/Admin/Users">@Strings.T("action.cancel")</a></div></form>
+<form method="post" asp-page-handler="Password" class="card" data-confirm="Réinitialiser le mot de passe ? Les sessions de cet utilisateur seront révoquées.">
+    <h2>Réinitialiser le mot de passe</h2>
+    <div class="row" style="align-items:end"><div><label>Nouveau mot de passe</label><input asp-for="NewPassword" type="password" autocomplete="new-password" required /></div><button type="submit" class="secondary">Réinitialiser</button></div>
+</form>

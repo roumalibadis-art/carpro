@@ -1,0 +1,48 @@
+@using System.Security.Claims
+@{
+    bool Can(string p) => User.HasClaim(Permissions.ClaimType, p);
+    var authenticated = User.Identity?.IsAuthenticated == true;
+}
+<!doctype html>
+<html lang="fr" dir="@(Strings.IsRtl ? "rtl" : "ltr")">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="data:," />
+    <title>@(ViewData["Title"] is string t ? t + " · " : "")@Strings.T("app.name")</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+@if (authenticated)
+{
+    <input type="checkbox" id="navtoggle" class="navtoggle" aria-label="Menu" />
+    <header class="topbar">
+        <a class="brand" href="/">@Strings.T("app.name")</a>
+        <label for="navtoggle" class="burger" aria-hidden="true">☰</label>
+        <nav class="nav" aria-label="Navigation principale">
+            <a href="/">@Strings.T("nav.dashboard")</a>
+            @if (Can(Permissions.BusinessView) || Can(Permissions.BusinessViewAll)) { <a href="/Businesses">@Strings.T("nav.businesses")</a> }
+            @if (Can(Permissions.BusinessImport)) { <a href="/Imports">@Strings.T("nav.import")</a> }
+            @if (Can(Permissions.DuplicateManage)) { <a href="/Duplicates">@Strings.T("nav.duplicates")</a> }
+            <span class="soon" title="Phase 2">@Strings.T("nav.map") <small>@Strings.T("nav.soon")</small></span>
+            <span class="soon" title="Phase 2">@Strings.T("nav.campaigns") <small>@Strings.T("nav.soon")</small></span>
+            <span class="soon" title="Phase 3">@Strings.T("nav.studies") <small>@Strings.T("nav.soon")</small></span>
+            @if (Can(Permissions.ReferenceManage)) { <a href="/Admin/Geography">Géographie</a><a href="/Admin/Categories">Activités</a><a href="/Admin/Statuses">Statuts</a> }
+            @if (Can(Permissions.UserManage)) { <a href="/Admin/Users">@Strings.T("nav.users")</a> }
+            @if (Can(Permissions.RoleManage)) { <a href="/Admin/Roles">@Strings.T("nav.roles")</a> }
+            @if (Can(Permissions.AuditView)) { <a href="/Admin/Audit">@Strings.T("nav.audit")</a> }
+        </nav>
+        <form method="post" asp-page="/Account/Logout" class="logout">
+            <span class="who">@User.FindFirstValue(ClaimTypes.Name)</span>
+            <button type="submit" class="link">@Strings.T("action.logout")</button>
+        </form>
+    </header>
+}
+<main class="container">
+    @if (TempData["Ok"] is string ok) { <div class="alert ok" role="status">@ok</div> }
+    @if (TempData["Warn"] is string warn) { <div class="alert warn" role="status">@Html.Raw(System.Net.WebUtility.HtmlEncode(warn).Replace("\n", "<br />"))</div> }
+    @RenderBody()
+</main>
+<script src="~/js/site.js" asp-append-version="true"></script>
+</body>
+</html>

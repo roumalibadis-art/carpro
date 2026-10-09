@@ -1,0 +1,19 @@
+@model (int Page, int TotalPages, int Total)
+@if (Model.TotalPages > 1)
+{
+    <nav class="pager" aria-label="Pagination">
+        <span>@Model.Total résultat(s)</span>
+        @if (Model.Page > 1) { <a href="@PagerUrl(Model.Page - 1)">« Précédent</a> }
+        <span>Page @Model.Page / @Model.TotalPages</span>
+        @if (Model.Page < Model.TotalPages) { <a href="@PagerUrl(Model.Page + 1)">Suivant »</a> }
+    </nav>
+}
+@functions {
+    string PagerUrl(int p)
+    {
+        var key = ViewData["PageKey"] as string ?? "Page";
+        var q = Context.Request.Query.Where(kv => !string.Equals(kv.Key, key, StringComparison.OrdinalIgnoreCase))
+            .SelectMany(kv => kv.Value.Select(v => $"{Uri.EscapeDataString(kv.Key)}={Uri.EscapeDataString(v ?? "")}"));
+        return Context.Request.Path + "?" + string.Join("&", q.Append($"{key}={p}"));
+    }
+}

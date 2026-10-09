@@ -1,0 +1,24 @@
+@page
+@model Prospecta.Web.Pages.Admin.UsersModel
+@{ ViewData["Title"] = "Utilisateurs"; }
+<h1>Utilisateurs et permissions</h1>
+<form method="get" class="card row" style="align-items:end"><div><label>Recherche</label><input asp-for="Search" type="search" /></div><button type="submit">Rechercher</button></form>
+<div class="tablewrap"><table class="responsive"><thead><tr><th>Nom</th><th>E-mail</th><th>Rôle</th><th>Actif</th><th>Dernière connexion</th><th></th></tr></thead><tbody>
+@foreach (var u in Model.Result.Items)
+{
+    <tr><td data-label="Nom">@u.FullName</td><td data-label="E-mail">@u.Email</td><td data-label="Rôle">@u.Role</td>
+        <td data-label="Actif"><span class="badge @(u.IsActive ? "ok" : "bad")">@(u.IsActive ? "actif" : "désactivé")</span></td>
+        <td data-label="Connexion">@(u.LastLoginAt?.ToString("dd/MM/yyyy HH:mm") ?? "jamais")</td><td><a href="/Admin/UserEdit/@u.Id">Modifier</a></td></tr>
+}
+</tbody></table></div>
+<partial name="_Pager" model="(Model.Result.Page, Model.Result.TotalPages, Model.Result.Total)" />
+
+<h2>Créer un utilisateur</h2>
+@if (!ModelState.IsValid) { <div class="alert err" role="alert"><ul>@foreach (var e in ModelState.Values.SelectMany(v => v.Errors)) { <li>@e.ErrorMessage</li> }</ul></div> }
+<form method="post" class="card"><div class="filters">
+    <div><label>Nom complet</label><input asp-for="FullName" required maxlength="120" /></div>
+    <div><label>Adresse e-mail</label><input asp-for="Email" type="email" required autocomplete="off" /></div>
+    <div><label>Mot de passe initial (10 car. min., majuscule, minuscule, chiffre, symbole)</label><input asp-for="Password" type="password" required autocomplete="new-password" /></div>
+    <div><label>Rôle</label><select asp-for="Role"><option value="Salesperson">Commercial</option><option value="SalesManager">Responsable commercial</option><option value="Admin">Administrateur</option></select></div>
+    <div><label>Responsable hiérarchique</label><select asp-for="ManagerId" asp-items="Model.Managers"></select></div>
+</div><div class="actions"><button type="submit">Créer</button></div></form>

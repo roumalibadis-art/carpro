@@ -1,0 +1,63 @@
+@page "{id:guid}"
+@using Prospecta.Application.Imports
+@model Prospecta.Web.Pages.Imports.DetailsModel
+@{ ViewData["Title"] = "Import " + Model.Batch.FileName; var b = Model.Batch; var open = b.Status is ImportStatus.Uploaded or ImportStatus.Mapped; }
+<h1>Import : @b.FileName</h1>
+<p>État : <span class="badge">@b.Status</span> · @b.TotalRows ligne(s) · importé le @b.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
+@if (b.SameFileAlreadyImported) { <div class="alert warn">Un fichier identique (même empreinte SHA-256) a déjà été importé. Poursuivez seulement si c'est voulu : les doublons seront signalés.</div> }
+
+@if (open)
+{
+    <form method="post" asp-page-handler="Map" class="card">
+        <h2>1. Associer les colonnes</h2>
+        <div class="filters">
+        @foreach (var (key, (label, _)) in ImportService.Fields)
+        {
+            <div><label>@label</label>
+                <select name="map_@key"><option value="">— ignorer —</option>
+                @foreach (var h in b.Headers) { <option value="@h" selected="@(b.Mapping.GetValueOrDefault(key) == h)">@h</option> }
+                </select></div>
+        }
+        </div>
+        <p class="muted">Les wilayas, daïras, communes et activités du fichier doivent exister dans les référentiels (comparaison sans accents ni casse). Les inconnus sont signalés, jamais créés automatiquement.</p>
+        <div class="actions"><button type="submit">Valider et prévisualiser</button></div>
+    </form>
+}
+
+@if (b.Status != ImportStatus.Uploaded)
+{
+    <div class="grid">
+        <div class="stat"><b>@b.ValidRows</b><span>lignes valides</span></div>
+        <div class="stat"><b>@b.InvalidRows</b><span>lignes invalides (ignorées)</span></div>
+        <div class="stat"><b>@b.DuplicateRows</b><span>doublons probables</span></div>
+        <div class="stat"><b>@b.ImportedRows</b><span>entreprises importées</span></div>
+    </div>
+    <form method="get" class="card row" style="align-items:end">
+        <div><label>Afficher</label><select asp-for="Status" data-autosubmit><option value="">Toutes les lignes</option><option value="Valid">Valides</option><option value="Invalid">Invalides</option><option value="PotentialDuplicate">Doublons</option><option value="Imported">Importées</option></select></div>
+    </form>
+}
+
+<div class="tablewrap"><table class="responsive">
+    <thead><tr><th>Ligne</th>@foreach (var h in b.Headers.Take(6)) { <th>@h</th> }<th>État</th><th>Remarque</th></tr></thead>
+    <tbody>
+    @foreach (var r in Model.Rows.Items)
+    {
+        <tr><td data-label="Ligne">@r.RowNumber</td>@foreach (var h in b.Headers.Take(6)) { <td data-label="@h">@r.Raw.GetValueOrDefault(h)</td> }
+            <td data-label="État"><span class="badge @(r.Status == ImportRowStatus.Invalid ? "bad" : r.Status == ImportRowStatus.PotentialDuplicate ? "warn" : r.Status is ImportRowStatus.Valid or ImportRowStatus.Imported ? "ok" : "")">@r.Status</span></td>
+            <td data-label="Remarque">@r.Errors</td></tr>
+    }
+    </tbody></table></div>
+<partial name="_Pager" model="(Model.Rows.Page, Model.Rows.TotalPages, Model.Rows.Total)" />
+
+@if (b.Status == ImportStatus.Mapped)
+{
+    <form method="post" asp-page-handler="Commit" class="card" data-confirm="Importer @b.ValidRows entreprise(s) ? Les lignes invalides sont ignorées.">
+        <h2>Confirmer l'import</h2>
+        <label><input type="checkbox" name="includeDuplicates" value="true" /> Importer aussi les doublons probables (ils seront ajoutés à la liste des doublons à examiner)</label>
+        <div class="actions"><button type="submit" @(b.ValidRows == 0 && b.DuplicateRows == 0 ? "disabled" : "")>Confirmer l'import</button></div>
+    </form>
+}
+@if (open)
+{
+    <form method="post" asp-page-handler="Cancel" data-confirm="Annuler cet import ?"><button class="secondary" type="submit">Annuler l'import</button></form>
+}

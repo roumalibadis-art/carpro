@@ -1,0 +1,21 @@
+@page
+@model Prospecta.Web.Pages.Imports.IndexModel
+@{ ViewData["Title"] = "Imports"; }
+<h1>Importer des entreprises</h1>
+@if (!ModelState.IsValid) { <div class="alert err" role="alert">@Html.ValidationSummary(true)</div> }
+<form method="post" enctype="multipart/form-data" class="card">
+    <p>Étapes : <b>1.</b> choisir le fichier · <b>2.</b> associer les colonnes · <b>3.</b> vérifier l'aperçu (lignes valides, invalides, doublons) · <b>4.</b> confirmer. Rien n'est enregistré avant la confirmation.</p>
+    <div class="row" style="align-items:end"><div><label>Fichier Excel (.xlsx) ou CSV (5 Mo, 5 000 lignes max)</label><input type="file" name="file" accept=".csv,.xlsx" required /></div><button type="submit">Charger et prévisualiser</button></div>
+</form>
+<h2>Imports récents</h2>
+@if (Model.Batches.Count == 0) { <p class="muted">@Strings.T("common.empty")</p> }
+else
+{
+    <div class="tablewrap"><table class="responsive"><thead><tr><th>Fichier</th><th>Date</th><th>État</th><th>Lignes</th><th>Valides</th><th>Invalides</th><th>Doublons</th><th>Importées</th><th></th></tr></thead>
+    <tbody>@foreach (var b in Model.Batches)
+    {
+        <tr><td data-label="Fichier">@b.FileName</td><td data-label="Date">@b.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td><td data-label="État">@b.Status</td><td data-label="Lignes">@b.TotalRows</td>
+            <td data-label="Valides">@b.ValidRows</td><td data-label="Invalides">@b.InvalidRows</td><td data-label="Doublons">@b.DuplicateRows</td><td data-label="Importées">@b.ImportedRows</td>
+            <td><a href="/Imports/Details/@b.Id">Ouvrir</a></td></tr>
+    }</tbody></table></div>
+}

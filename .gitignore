@@ -1,0 +1,12 @@
+bin/
+obj/
+.vs/
+*.user
+*.db
+*.db-shm
+*.db-wal
+logs/
+TestResults/
+.env
+appsettings.Local.json
+App_Data/

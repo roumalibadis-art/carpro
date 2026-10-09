@@ -1,0 +1,15 @@
+@page
+@model Prospecta.Web.Pages.Admin.AuditModel
+@{ ViewData["Title"] = "Journal d'activité"; }
+<h1>Journal d'activité</h1>
+<form method="get" class="card"><div class="filters">
+    <div><label>Action (préfixe, ex. business.)</label><input asp-for="Action" /></div><div><label>Utilisateur</label><input asp-for="UserName" /></div>
+    <div><label>Du</label><input asp-for="From" type="date" /></div><div><label>Au</label><input asp-for="To" type="date" /></div>
+</div><div class="actions"><button type="submit">Filtrer</button><a class="btn secondary" href="/Admin/Audit">Réinitialiser</a></div></form>
+<div class="tablewrap"><table class="responsive"><thead><tr><th>Date (UTC)</th><th>Utilisateur</th><th>Action</th><th>Objet</th><th>Détails</th><th>IP</th></tr></thead><tbody>
+@foreach (var a in Model.Result.Items)
+{
+    <tr><td data-label="Date">@a.At.ToString("dd/MM/yyyy HH:mm:ss")</td><td data-label="Utilisateur">@(a.User ?? "système")</td><td data-label="Action">@a.Action</td><td data-label="Objet">@a.EntityType @a.EntityId</td><td data-label="Détails">@a.Details</td><td data-label="IP">@a.Ip</td></tr>
+}
+</tbody></table></div>
+<partial name="_Pager" model="(Model.Result.Page, Model.Result.TotalPages, Model.Result.Total)" />

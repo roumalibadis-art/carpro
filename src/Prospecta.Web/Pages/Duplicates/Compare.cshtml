@@ -1,0 +1,42 @@
+@page "{id:guid}"
+@model Prospecta.Web.Pages.Duplicates.CompareModel
+@{ ViewData["Title"] = "Comparer des doublons"; var d = Model.Data; var pending = d.Status == DuplicateStatus.Pending; }
+<h1>Comparer deux fiches <span class="badge @(d.Strong ? "bad" : "warn")">@d.Score.ToString("P0")</span></h1>
+<p>@string.Join(" · ", d.Reasons)</p>
+<form method="post" asp-page-handler="Merge" class="card">
+    <div class="tablewrap"><table class="cmp">
+        <thead><tr><th></th>
+            <th>@if (pending) { <label><input type="radio" name="survivorId" value="@d.A.Id" checked /> Conserver A</label> }<a href="/Businesses/Details/@d.A.Id">@d.A.Name</a></th>
+            <th>@if (pending) { <label><input type="radio" name="survivorId" value="@d.B.Id" /> Conserver B</label> }<a href="/Businesses/Details/@d.B.Id">@d.B.Name</a></th>
+            @if (pending) { <th>Prendre la valeur de l'autre fiche</th> }
+        </tr></thead>
+        <tbody>
+        @foreach (var (field, label) in CompareModel.Fields)
+        {
+            var va = d.A.Fields.GetValueOrDefault(field); var vb = d.B.Fields.GetValueOrDefault(field);
+            var diff = va != vb && va is not null && vb is not null;
+            <tr class="@(diff ? "diff" : "")">
+                <td>@label</td>
+                <td>@(va ?? Strings.T("common.none")) <small class="o-@(d.A.Origins.GetValueOrDefault(field))">@(d.A.Origins.ContainsKey(field) ? "(" + d.A.Origins[field] + ")" : "")</small></td>
+                <td>@(vb ?? Strings.T("common.none")) <small class="o-@(d.B.Origins.GetValueOrDefault(field))">@(d.B.Origins.ContainsKey(field) ? "(" + d.B.Origins[field] + ")" : "")</small></td>
+                @if (pending) { <td>@if (diff) { <label><input type="checkbox" name="useOther" value="@field" /> remplacer</label> }</td> }
+            </tr>
+        }
+        <tr><td>Commune</td><td>@(d.A.Commune ?? Strings.T("common.none"))</td><td>@(d.B.Commune ?? Strings.T("common.none"))</td>@if (pending) { <td></td> }</tr>
+        <tr><td>Activité</td><td>@(d.A.Category ?? Strings.T("common.none"))</td><td>@(d.B.Category ?? Strings.T("common.none"))</td>@if (pending) { <td></td> }</tr>
+        <tr><td>Sources</td><td>@d.A.SourceCount</td><td>@d.B.SourceCount</td>@if (pending) { <td></td> }</tr>
+        <tr><td>Affectations actives</td><td>@d.A.Assignments</td><td>@d.B.Assignments</td>@if (pending) { <td></td> }</tr>
+        <tr><td>État du recensement</td><td>@d.A.CensusStatus</td><td>@d.B.CensusStatus</td>@if (pending) { <td></td> }</tr>
+        <tr><td>Collectée le</td><td>@d.A.CollectedAt.ToString("dd/MM/yyyy")</td><td>@d.B.CollectedAt.ToString("dd/MM/yyyy")</td>@if (pending) { <td></td> }</tr>
+        </tbody></table></div>
+    @if (pending)
+    {
+        <p class="muted">La fiche conservée reçoit les champs manquants de l'autre, ses sources, ses affectations et son historique. L'autre fiche est archivée (suppression logique) et reste traçable.</p>
+        <div class="actions">
+            <button type="submit" data-confirm="Fusionner ces deux fiches ? Cette action est tracée.">Fusionner</button>
+            <button type="submit" class="secondary" formaction="?handler=Dismiss" data-confirm="Marquer ce couple comme « pas un doublon » ?">Ce ne sont pas des doublons</button>
+            <a class="btn secondary" href="/Duplicates">Retour</a>
+        </div>
+    }
+    else { <p class="muted">Ce couple a déjà été traité (@d.Status).</p> }
+</form>

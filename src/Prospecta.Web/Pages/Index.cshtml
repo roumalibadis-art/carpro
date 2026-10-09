@@ -1,0 +1,40 @@
+@page
+@model IndexModel
+@{ ViewData["Title"] = "Tableau de bord"; var d = Model.Data; }
+<h1>Tableau de bord</h1>
+<form method="get" class="card">
+    <div class="filters" data-geo-chain>
+        <div><label>Collectées du</label><input type="date" asp-for="Filter.CollectedFrom" /></div>
+        <div><label>au</label><input type="date" asp-for="Filter.CollectedTo" /></div>
+        <div><label>Wilaya</label><select data-geo data-placeholder="Toutes les communes" asp-for="Filter.WilayaId" asp-items="Model.Wilayas"></select></div>
+        <div><label>Secteur</label><select asp-for="Filter.CategoryId" asp-items="Model.Categories"></select></div>
+        @if (Model.Users.Count > 0) { <div><label>Utilisateur</label><select asp-for="Filter.ResponsibleUserId" asp-items="Model.Users"></select></div> }
+    </div>
+    <div class="actions"><button type="submit">Appliquer</button><a class="btn secondary" href="/">Réinitialiser</a></div>
+</form>
+
+<div class="grid">
+    <div class="stat"><b>@d.Total</b><span>Entreprises recensées</span></div>
+    <div class="stat"><b>@d.Verified</b><span>Vérifiées</span></div>
+    <div class="stat"><b>@d.ToVerify</b><span>À vérifier / partielles</span></div>
+    <div class="stat"><b>@d.Unassigned</b><span>Non affectées</span></div>
+    <div class="stat"><b>@d.PotentialDuplicates</b><span>Doublons potentiels</span></div>
+    <div class="stat"><b>@d.WithoutPhone</b><span>Sans téléphone</span></div>
+    <div class="stat"><b>@d.WithoutCoordinates</b><span>Sans coordonnées</span></div>
+</div>
+
+<div class="grid wide" style="margin-top:16px">
+    @foreach (var (title, items) in new[] { ("État du recensement", d.ByCensus), ("Traitement commercial", d.ByProcessing), ("Résultat commercial", d.ByOutcome), ("Top communes", d.ByCommune), ("Top activités", d.ByCategory), ("Sources", d.BySource) })
+    {
+        <section class="card">
+            <h3>@title</h3>
+            @if (items.Count == 0) { <p class="muted">Aucune donnée.</p> }
+            @foreach (var i in items)
+            {
+                var pct = d.Total == 0 ? 0 : Math.Min(100, i.Count * 100 / Math.Max(1, items.Max(x => x.Count)));
+                <div><div class="row" style="justify-content:space-between"><span>@i.Label</span><b>@i.Count</b></div><div class="bar"><i style="width:@(pct)%"></i></div></div>
+            }
+        </section>
+    }
+</div>
+<p class="muted">Visites réalisées, relances en retard, dépenses, prospects intéressés et conversions seront affichés avec les modules Campagnes / Visites (phase 2) : aucun chiffre n'est simulé ici.</p>

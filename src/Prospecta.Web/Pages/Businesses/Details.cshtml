@@ -1,0 +1,121 @@
+@page "{id:guid}"
+@model Prospecta.Web.Pages.Businesses.DetailsModel
+@{
+    var d = Model.Data; var i = d.Data;
+    ViewData["Title"] = i.Name;
+    bool Can(string p) => User.HasClaim(Permissions.ClaimType, p);
+    string Or(string? v) => string.IsNullOrWhiteSpace(v) ? Strings.T("common.none") : v;
+}
+<div class="row" style="justify-content:space-between;align-items:center">
+    <h1>@i.Name @if (d.IsDemo) { <span class="badge warn">DÉMO</span> }</h1>
+    <div class="actions">
+        @if (d.CanEdit) { <a class="btn" href="/Businesses/Edit/@d.Id">Modifier</a> }
+        <a class="btn secondary" href="/Businesses">Retour à la liste</a>
+    </div>
+</div>
+
+<div class="grid wide">
+    <section class="card">
+        <h2>Identité et coordonnées</h2>
+        <dl class="kv">
+            <dt>Nom légal</dt><dd class="@Model.OriginClass("LegalName")" title="@Model.OriginLabel("LegalName")">@Or(i.LegalName)</dd>
+            <dt>Activité</dt><dd>@Or(d.Category)@(d.SubCategory is null ? "" : " › " + d.SubCategory)</dd>
+            <dt>Localisation</dt><dd>@Or(string.Join(" › ", new[] { d.Wilaya, d.Daira, d.Commune, d.District }.Where(x => x is not null)))</dd>
+            <dt>Adresse</dt><dd class="@Model.OriginClass("Address")" title="@Model.OriginLabel("Address")">@Or(i.Address)</dd>
+            <dt>Coordonnées</dt><dd class="@Model.OriginClass("Latitude")">@(i.Latitude is null ? Strings.T("common.none") : $"{i.Latitude:0.00000}, {i.Longitude:0.00000}")</dd>
+            <dt>Plus Code</dt><dd>@Or(i.PlusCode)</dd>
+            <dt>Téléphone</dt><dd class="@Model.OriginClass("Phone")" title="@Model.OriginLabel("Phone")">@Or(i.Phone)</dd>
+            <dt>Site web</dt><dd class="@Model.OriginClass("Website")">@if (i.Website is not null) { <a href="@i.Website" rel="noopener noreferrer nofollow" target="_blank">@i.Website</a> } else { @Strings.T("common.none") }</dd>
+            <dt>Fiche Google Maps</dt><dd>@if (i.GoogleMapsUrl is not null) { <a href="@i.GoogleMapsUrl" rel="noopener noreferrer nofollow" target="_blank">ouvrir</a> } else { @Strings.T("common.none") }</dd>
+            <dt>Page source</dt><dd>@if (i.SourceUrl is not null) { <a href="@i.SourceUrl" rel="noopener noreferrer nofollow" target="_blank">ouvrir</a> } else { @Strings.T("common.none") }</dd>
+            <dt>Description</dt><dd>@Or(i.Description)</dd>
+            <dt>Commentaires internes</dt><dd style="white-space:pre-wrap">@Or(i.InternalNotes)</dd>
+        </dl>
+        <p class="muted">Origine des valeurs : <span class="o-Confirmed">confirmé</span> · <span class="o-External">source externe</span> · <span class="o-Manual">saisi manuellement</span> · <span class="o-Estimated">estimé</span> (couleur du texte).</p>
+    </section>
+
+    <section class="card">
+        <h2>Qualité des données</h2>
+        <dl class="kv">
+            <dt>Complétude</dt><dd>@d.Completeness % <div class="bar"><i style="width:@(d.Completeness)%"></i></div></dd>
+            <dt>Niveau de confiance</dt><dd>@d.Confidence</dd>
+            <dt>Date de collecte</dt><dd>@d.CollectedAt.ToString("dd/MM/yyyy")</dd>
+            <dt>Dernière vérification</dt><dd>@(d.LastVerifiedAt is null ? "jamais vérifiée" : d.LastVerifiedAt.Value.ToString("dd/MM/yyyy") + (d.LastVerifiedBy is null ? "" : " par " + d.LastVerifiedBy))</dd>
+            <dt>Dernière modification</dt><dd>@d.UpdatedAt.ToString("dd/MM/yyyy HH:mm")</dd>
+            <dt>Signalements</dt><dd>@(d.HasContactError ? "erreur de contact " : "")@(d.ChangeReported ? "changement signalé" : "")@(!d.HasContactError && !d.ChangeReported ? "aucun" : "")</dd>
+        </dl>
+        @if (d.CanVerify)
+        {
+            <form method="post" asp-page-handler="Verify" data-confirm="Confirmer que les informations actuelles ont été vérifiées ?"><button type="submit">Marquer comme vérifiée</button></form>
+        }
+        @if (d.CanEdit)
+        {
+            <form method="post" asp-page-handler="Flags" class="actions">
+                <label><input type="checkbox" name="contactError" value="true" checked="@d.HasContactError" /> Erreur de contact</label>
+                <label><input type="checkbox" name="changeReported" value="true" checked="@d.ChangeReported" /> Changement signalé</label>
+                <button type="submit" class="secondary">Mettre à jour</button>
+            </form>
+        }
+    </section>
+
+    <section class="card">
+        <h2>États (indépendants)</h2>
+        @foreach (var (kind, label, current, items) in new[] { (StatusKind.Census, "Recensement", d.CensusStatus, Model.CensusStatuses), (StatusKind.Processing, "Traitement commercial", d.ProcessingStatus, Model.ProcessingStatuses), (StatusKind.Outcome, "Résultat commercial", d.OutcomeStatus, Model.OutcomeStatuses) })
+        {
+            <form method="post" asp-page-handler="Status" class="row" style="align-items:end;margin-bottom:8px">
+                <input type="hidden" name="kind" value="@kind" />
+                <div><label>@label</label><select name="statusId" asp-items="items" disabled="@(!d.CanEdit)"></select></div>
+                @if (d.CanEdit) { <button type="submit" class="secondary">Changer</button> }
+            </form>
+        }
+    </section>
+
+    <section class="card">
+        <h2>Affectation</h2>
+        @if (d.Assignments.Count == 0) { <p class="muted">Non affectée.</p> }
+        @foreach (var a in d.Assignments)
+        {
+            <form method="post" asp-page-handler="Unassign" class="row" style="align-items:center">
+                <span>@a.UserName <span class="muted">depuis le @a.Since.ToString("dd/MM/yyyy")</span></span>
+                <input type="hidden" name="userId" value="@a.UserId" />
+                @if (Can(Permissions.BusinessAssign)) { <button type="submit" class="secondary" data-confirm="Retirer cette affectation ?">Retirer</button> }
+            </form>
+        }
+        @if (Can(Permissions.BusinessAssign))
+        {
+            <form method="post" asp-page-handler="Assign" class="row" style="align-items:end">
+                <div><label>Affecter à</label><select name="userId" asp-items="Model.Users"></select></div><button type="submit">Affecter</button>
+            </form>
+        }
+    </section>
+
+    <section class="card">
+        <h2>Sources et provenance</h2>
+        @foreach (var s in d.Sources)
+        {
+            <p><b>@s.SourceType</b> — @s.Provider<br /><span class="muted">collectée le @s.CollectedAt.ToString("dd/MM/yyyy")@(s.ExternalId is null ? "" : " · id " + s.ExternalId)</span>
+            @if (s.Url is not null) { <br /><a href="@s.Url" rel="noopener noreferrer nofollow" target="_blank">page source</a> }</p>
+        }
+    </section>
+</div>
+
+<section class="card">
+    <h2>Historique des modifications</h2>
+    <div class="tablewrap"><table class="responsive">
+        <thead><tr><th>Date</th><th>Champ</th><th>Ancienne valeur</th><th>Nouvelle valeur</th><th>Origine</th><th>Par</th></tr></thead>
+        <tbody>
+        @foreach (var h in Model.History.Items)
+        {
+            <tr><td data-label="Date">@h.At.ToString("dd/MM/yyyy HH:mm")</td><td data-label="Champ">@h.Field</td><td data-label="Avant">@Or(h.OldValue)</td><td data-label="Après">@Or(h.NewValue)</td>
+                <td data-label="Origine">@h.Origin</td><td data-label="Par">@(h.ChangedBy ?? "système")@(h.Reason is null ? "" : " — " + h.Reason)</td></tr>
+        }
+        </tbody></table></div>
+    <partial name="_Pager" model="(Model.History.Page, Model.History.TotalPages, Model.History.Total)" view-data='new ViewDataDictionary(ViewData) { ["PageKey"] = "HistoryPage" }' />
+</section>
+
+@if (Can(Permissions.BusinessDelete))
+{
+    <form method="post" asp-page-handler="Delete" class="card row" style="align-items:end" data-confirm="Supprimer cette entreprise ? (suppression logique, l'historique est conservé)">
+        <div><label>Motif de suppression</label><input name="reason" maxlength="200" /></div><button class="danger" type="submit">Supprimer</button>
+    </form>
+}
