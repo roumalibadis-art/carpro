@@ -4,6 +4,7 @@ using Prospecta.Domain.Auditing;
 using Prospecta.Domain.Businesses;
 using Prospecta.Domain.Geography;
 using Prospecta.Domain.Imports;
+using Prospecta.Domain.Prospecting;
 
 namespace Prospecta.Application.Abstractions;
 
@@ -22,6 +23,16 @@ public interface IAppDbContext
     DbSet<ImportRow> ImportRows { get; }
     DbSet<AuditLog> AuditLogs { get; }
     DbSet<SavedFilter> SavedFilters { get; }
+    DbSet<Campaign> Campaigns { get; }
+    DbSet<CampaignParticipant> CampaignParticipants { get; }
+    DbSet<CampaignTarget> CampaignTargets { get; }
+    DbSet<Outing> Outings { get; }
+    DbSet<OutingParticipant> OutingParticipants { get; }
+    DbSet<Visit> Visits { get; }
+    DbSet<FollowUp> FollowUps { get; }
+    DbSet<Expense> Expenses { get; }
+    DbSet<Notification> Notifications { get; }
+    DbSet<SystemFlag> SystemFlags { get; }
     DbSet<Identity.ApplicationUser> AppUsers { get; }
     DatabaseFacade Database { get; }
     Task<int> SaveChangesAsync(CancellationToken ct = default);

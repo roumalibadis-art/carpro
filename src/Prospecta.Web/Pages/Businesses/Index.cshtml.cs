@@ -9,7 +9,7 @@ using Prospecta.Domain.Common;
 
 namespace Prospecta.Web.Pages.Businesses;
 
-public class IndexModel(BusinessService service, ExportService export, SavedFilterService savedFilters, UiLookups lookups) : AppPage
+public class IndexModel(BusinessService service, ExportService export, SavedFilterService savedFilters, UiLookups lookups, Prospecta.Application.Prospecting.CampaignService campaignService) : AppPage
 {
     [BindProperty(SupportsGet = true)] public BusinessFilter Filter { get; set; } = new();
     [BindProperty(SupportsGet = true)] public Guid? ViewId { get; set; }
@@ -17,6 +17,7 @@ public class IndexModel(BusinessService service, ExportService export, SavedFilt
     public IReadOnlyList<SavedFilterDto> Views { get; private set; } = [];
 
     public List<SelectListItem> Wilayas = [], Dairas = [], Communes = [], Districts = [], Categories = [], SubCategories = [];
+    public List<SelectListItem> CampaignChoices = [];
     public List<SelectListItem> CensusStatuses = [], ProcessingStatuses = [], OutcomeStatuses = [], Users = [];
 
     private async Task LoadAsync()
@@ -36,6 +37,7 @@ public class IndexModel(BusinessService service, ExportService export, SavedFilt
         ProcessingStatuses = await lookups.StatusesAsync(StatusKind.Processing, Filter.ProcessingStatusId, "Tous");
         OutcomeStatuses = await lookups.StatusesAsync(StatusKind.Outcome, Filter.OutcomeStatusId, "Tous");
         Users = await lookups.UsersAsync(Filter.ResponsibleUserId, "Tous");
+        CampaignChoices = Can(Prospecta.Application.Security.Permissions.CampaignManage) ? await lookups.CampaignsAsync(campaignService, null, "— campagne —") : [];
     }
 
     public async Task OnGetAsync() => await LoadAsync();
@@ -46,7 +48,7 @@ public class IndexModel(BusinessService service, ExportService export, SavedFilt
         return File(file.Content, file.ContentType, file.FileName);
     }
 
-    public async Task<IActionResult> OnPostBulkAsync(Guid[] ids, string bulk, Guid? userId, Guid? statusId, StatusKind? kind, string? returnQuery)
+    public async Task<IActionResult> OnPostBulkAsync(Guid[] ids, string bulk, Guid? userId, Guid? statusId, StatusKind? kind, Guid? campaignId, string? returnQuery)
     {
         try
         {
@@ -58,6 +60,10 @@ public class IndexModel(BusinessService service, ExportService export, SavedFilt
                     break;
                 case "status":
                     TempData["Ok"] = $"{await service.BulkSetStatusAsync(ids, kind ?? StatusKind.Census, statusId ?? Guid.Empty)} entreprise(s) mise(s) à jour.";
+                    break;
+                case "campaign":
+                    if (campaignId is null) throw new ValidationException("Choisissez une campagne.");
+                    TempData["Ok"] = $"{await campaignService.AddTargetsAsync(campaignId.Value, ids, userId)} entreprise(s) ajoutée(s) à la campagne.";
                     break;
                 default:
                     throw new ValidationException("Action inconnue.");

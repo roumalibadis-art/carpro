@@ -1,0 +1,17 @@
+@page
+@model Prospecta.Web.Pages.Outings.IndexModel
+@{ ViewData["Title"] = "Sorties commerciales"; }
+<div class="row" style="justify-content:space-between;align-items:center"><h1>Sorties commerciales</h1>
+    @if (User.HasClaim(Permissions.ClaimType, Permissions.OutingManage)) { <a class="btn" href="/Outings/Edit">+ Nouvelle sortie</a> }</div>
+<form method="get" class="card row" style="align-items:end"><div><label>Du</label><input asp-for="From" type="date" /></div><div><label>Au</label><input asp-for="To" type="date" /></div><button type="submit">Filtrer</button><a class="btn secondary" href="/Outings">Réinitialiser</a></form>
+@if (Model.Result.Items.Count == 0) { <div class="card">@Strings.T("common.empty")</div> }
+else
+{
+    <div class="tablewrap"><table class="responsive"><thead><tr><th>Date</th><th>Zone</th><th>Campagne</th><th>Responsable</th><th>État</th><th>Visites planifiées</th><th>Réalisées</th></tr></thead><tbody>
+    @foreach (var o in Model.Result.Items)
+    {
+        <tr><td data-label="Date"><a href="/Outings/Details/@o.Id">@o.Date.ToString("dd/MM/yyyy")</a></td><td data-label="Zone">@(o.Zone ?? "—")</td><td data-label="Campagne">@(o.Campaign ?? "—")</td><td data-label="Responsable">@o.Manager</td>
+            <td data-label="État"><span class="badge">@o.Status</span></td><td data-label="Planifiées">@o.Planned</td><td data-label="Réalisées">@o.Done</td></tr>
+    }</tbody></table></div>
+    <partial name="_Pager" model="(Model.Result.Page, Model.Result.TotalPages, Model.Result.Total)" />
+}

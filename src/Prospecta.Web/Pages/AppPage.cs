@@ -33,6 +33,8 @@ public abstract class AppPage : PageModel
         return false;
     }
 
+    public static string Local(DateTime utc) => Prospecta.Application.Prospecting.Dates.UtcToLocal(utc).ToString("dd/MM/yyyy HH:mm");
+
     protected bool Can(string permission) => User.HasClaim(Prospecta.Application.Security.Permissions.ClaimType, permission);
 }
 
@@ -60,5 +62,15 @@ public sealed class UiLookups(ReferenceService reference, UserAdminService users
         {
             return WithBlank([], blank);
         }
+    }
+}
+
+public static class UiLookupsExt
+{
+    public static async Task<List<SelectListItem>> CampaignsAsync(this UiLookups l, Prospecta.Application.Prospecting.CampaignService svc, Guid? selected, string blank = "—")
+    {
+        var page = await svc.ListAsync(null, null, 1, 100);
+        return UiLookups.WithBlank(page.Items.Where(c => c.Status is Prospecta.Domain.Common.CampaignStatus.Draft or Prospecta.Domain.Common.CampaignStatus.Active)
+            .Select(c => new SelectListItem(c.Name, c.Id.ToString(), c.Id == selected)), blank);
     }
 }

@@ -5,6 +5,7 @@ using Prospecta.Application.Common;
 using Prospecta.Application.Dashboard;
 using Prospecta.Application.Duplicates;
 using Prospecta.Application.Imports;
+using Prospecta.Application.Prospecting;
 using Prospecta.Application.Reference;
 using Prospecta.Application.Users;
 
@@ -26,6 +27,12 @@ public static class DependencyInjection
         services.AddScoped<DashboardService>();
         services.AddScoped<AuditQueryService>();
         services.AddScoped<SavedFilterService>();
+        services.AddScoped<FollowUpService>();
+        services.AddScoped<VisitService>();
+        services.AddScoped<CampaignService>();
+        services.AddScoped<OutingService>();
+        services.AddScoped<NotificationService>();
+        services.AddScoped<FollowUpReminderService>();
         return services;
     }
 }

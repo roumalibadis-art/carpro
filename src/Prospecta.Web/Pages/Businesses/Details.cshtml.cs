@@ -6,18 +6,26 @@ using Prospecta.Domain.Common;
 
 namespace Prospecta.Web.Pages.Businesses;
 
-public class DetailsModel(BusinessService service, UiLookups lookups) : AppPage
+public class DetailsModel(BusinessService service, UiLookups lookups, Prospecta.Application.Prospecting.VisitService visitService, Prospecta.Application.Prospecting.FollowUpService followUpService) : AppPage
 {
     [BindProperty(SupportsGet = true)] public Guid Id { get; set; }
     [BindProperty(SupportsGet = true)] public int HistoryPage { get; set; } = 1;
     public BusinessDetail Data { get; private set; } = default!;
     public PagedResult<HistoryDto> History { get; private set; } = new([], 0, 1, 20);
+    public IReadOnlyList<Prospecta.Application.Prospecting.VisitDto> Visits { get; private set; } = [];
+    public IReadOnlyList<Prospecta.Application.Prospecting.FollowUpDto> FollowUps { get; private set; } = [];
     public List<SelectListItem> CensusStatuses = [], ProcessingStatuses = [], OutcomeStatuses = [], Users = [];
 
     private async Task LoadAsync()
     {
         Data = await service.GetAsync(Id);
         History = await service.HistoryAsync(Id, HistoryPage, 20);
+        if (Can(Prospecta.Application.Security.Permissions.ActivityRecord))
+        {
+            Visits = await visitService.HistoryForBusinessAsync(Id);
+            FollowUps = (await followUpService.SearchAsync(new Prospecta.Application.Prospecting.FollowUpFilter { BusinessId = Id, PageSize = 20 })).Items;
+        }
+
         CensusStatuses = await lookups.StatusesAsync(StatusKind.Census, Data.CensusStatus.Id, "—");
         ProcessingStatuses = await lookups.StatusesAsync(StatusKind.Processing, Data.ProcessingStatus.Id, "—");
         OutcomeStatuses = await lookups.StatusesAsync(StatusKind.Outcome, Data.OutcomeStatus.Id, "—");
@@ -46,6 +54,9 @@ public class DetailsModel(BusinessService service, UiLookups lookups) : AppPage
     public Task<IActionResult> OnPostFlagsAsync(bool contactError, bool changeReported) => Act(() => service.SetFlagsAsync(Id, contactError, changeReported), "Signalements mis à jour.");
     public Task<IActionResult> OnPostAssignAsync(Guid userId) => Act(() => service.AssignAsync([Id], userId), "Affectation enregistrée.");
     public Task<IActionResult> OnPostUnassignAsync(Guid userId) => Act(() => service.UnassignAsync(Id, userId), "Affectation retirée.");
+
+    public Task<IActionResult> OnPostFollowUpAsync(DateOnly due, string reason, Priority priority) =>
+        Act(async () => await followUpService.CreateAsync(new Prospecta.Application.Prospecting.FollowUpInput { BusinessId = Id, DueDate = due, Reason = reason, Priority = priority }), "Relance créée.");
 
     public async Task<IActionResult> OnPostDeleteAsync(string? reason)
     {

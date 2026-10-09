@@ -8,6 +8,7 @@ using Prospecta.Domain.Auditing;
 using Prospecta.Domain.Businesses;
 using Prospecta.Domain.Geography;
 using Prospecta.Domain.Imports;
+using Prospecta.Domain.Prospecting;
 
 namespace Prospecta.Infrastructure.Persistence;
 
@@ -27,6 +28,16 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<ImportRow> ImportRows => Set<ImportRow>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<SavedFilter> SavedFilters => Set<SavedFilter>();
+    public DbSet<Campaign> Campaigns => Set<Campaign>();
+    public DbSet<CampaignParticipant> CampaignParticipants => Set<CampaignParticipant>();
+    public DbSet<CampaignTarget> CampaignTargets => Set<CampaignTarget>();
+    public DbSet<Outing> Outings => Set<Outing>();
+    public DbSet<OutingParticipant> OutingParticipants => Set<OutingParticipant>();
+    public DbSet<Visit> Visits => Set<Visit>();
+    public DbSet<FollowUp> FollowUps => Set<FollowUp>();
+    public DbSet<Expense> Expenses => Set<Expense>();
+    public DbSet<Notification> Notifications => Set<Notification>();
+    public DbSet<SystemFlag> SystemFlags => Set<SystemFlag>();
     public DbSet<ApplicationUser> AppUsers => Set<ApplicationUser>();
 
     protected override void OnConfiguring(DbContextOptionsBuilder o) =>
@@ -192,6 +203,96 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
             e.Property(f => f.Name).HasMaxLength(80);
             e.Property(f => f.FilterJson).HasMaxLength(4000);
             e.HasIndex(f => f.UserId);
+        });
+
+        m.Entity<Campaign>(e =>
+        {
+            e.Property(c => c.Name).HasMaxLength(200);
+            e.Property(c => c.Objective).HasMaxLength(2000);
+            e.Property(c => c.Notes).HasMaxLength(4000);
+            e.Property(c => c.Budget).HasPrecision(14, 2);
+            e.HasOne(c => c.Category).WithMany().HasForeignKey(c => c.CategoryId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(c => c.Status);
+            e.HasIndex(c => new { c.StartDate, c.EndDate });
+            e.HasIndex(c => c.ManagerUserId);
+        });
+        m.Entity<CampaignParticipant>(e =>
+        {
+            e.HasOne(p => p.Campaign).WithMany(c => c.Participants).HasForeignKey(p => p.CampaignId).OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(p => new { p.CampaignId, p.UserId }).IsUnique();
+            e.HasIndex(p => p.UserId);
+        });
+        m.Entity<CampaignTarget>(e =>
+        {
+            e.HasOne(t => t.Campaign).WithMany(c => c.Targets).HasForeignKey(t => t.CampaignId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(t => t.Business).WithMany().HasForeignKey(t => t.BusinessId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(t => new { t.CampaignId, t.BusinessId }).IsUnique();
+            e.HasIndex(t => new { t.AssignedUserId, t.CampaignId });
+            e.HasIndex(t => t.BusinessId);
+        });
+        m.Entity<Outing>(e =>
+        {
+            e.Property(o => o.StartPoint).HasMaxLength(300);
+            e.Property(o => o.Zone).HasMaxLength(300);
+            e.Property(o => o.Observations).HasMaxLength(4000);
+            e.HasOne(o => o.Campaign).WithMany().HasForeignKey(o => o.CampaignId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(o => o.Date);
+            e.HasIndex(o => o.CampaignId);
+        });
+        m.Entity<OutingParticipant>(e =>
+        {
+            e.HasOne(p => p.Outing).WithMany(o => o.Participants).HasForeignKey(p => p.OutingId).OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(p => new { p.OutingId, p.UserId }).IsUnique();
+            e.HasIndex(p => p.UserId);
+        });
+        m.Entity<Visit>(e =>
+        {
+            e.Property(v => v.ContactMet).HasMaxLength(200);
+            e.Property(v => v.Objections).HasMaxLength(2000);
+            e.Property(v => v.NeedIdentified).HasMaxLength(2000);
+            e.Property(v => v.RequestedInfo).HasMaxLength(2000);
+            e.Property(v => v.NextAction).HasMaxLength(500);
+            e.Property(v => v.Comment).HasMaxLength(4000);
+            e.Property(v => v.CancelReason).HasMaxLength(300);
+            e.HasOne(v => v.Business).WithMany().HasForeignKey(v => v.BusinessId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(v => new { v.BusinessId, v.ScheduledAt });
+            e.HasIndex(v => new { v.UserId, v.Status, v.ScheduledAt });
+            e.HasIndex(v => v.CampaignId);
+            e.HasIndex(v => v.OutingId);
+        });
+        m.Entity<FollowUp>(e =>
+        {
+            e.Property(f => f.Reason).HasMaxLength(500);
+            e.Property(f => f.Result).HasMaxLength(2000);
+            e.HasOne(f => f.Business).WithMany().HasForeignKey(f => f.BusinessId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(f => new { f.AssignedUserId, f.Status, f.DueDate });
+            e.HasIndex(f => new { f.Status, f.DueDate });
+            e.HasIndex(f => f.BusinessId);
+            e.HasIndex(f => f.CampaignId);
+        });
+        m.Entity<Expense>(e =>
+        {
+            e.Property(x => x.Amount).HasPrecision(14, 2);
+            e.Property(x => x.Description).HasMaxLength(500);
+            e.Property(x => x.ReceiptReference).HasMaxLength(200);
+            e.HasIndex(x => x.OutingId);
+            e.HasIndex(x => x.CampaignId);
+        });
+        m.Entity<Notification>(e =>
+        {
+            e.Property(n => n.Kind).HasMaxLength(40);
+            e.Property(n => n.Title).HasMaxLength(200);
+            e.Property(n => n.Body).HasMaxLength(1000);
+            e.Property(n => n.Link).HasMaxLength(300);
+            e.Property(n => n.DedupKey).HasMaxLength(120);
+            e.HasIndex(n => new { n.UserId, n.DedupKey }).IsUnique();
+            e.HasIndex(n => new { n.UserId, n.ReadAt });
+        });
+        m.Entity<SystemFlag>(e =>
+        {
+            e.HasKey(f => f.Key);
+            e.Property(f => f.Key).HasMaxLength(100);
+            e.Property(f => f.Value).HasMaxLength(200);
         });
     }
 }

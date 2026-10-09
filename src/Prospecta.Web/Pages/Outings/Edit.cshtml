@@ -1,0 +1,17 @@
+@page "{id:guid?}"
+@model Prospecta.Web.Pages.Outings.EditModel
+@{ ViewData["Title"] = Model.Id is null ? "Nouvelle sortie" : "Modifier la sortie"; }
+<h1>@ViewData["Title"]</h1>
+@if (!ModelState.IsValid) { <div class="alert err" role="alert"><ul>@foreach (var e in ModelState.Values.SelectMany(v => v.Errors)) { <li>@e.ErrorMessage</li> }</ul></div> }
+<form method="post" class="card"><div class="filters">
+    <div><label>Date *</label><input asp-for="Input.Date" type="date" required /></div>
+    <div><label>Heure de départ</label><input asp-for="Input.DepartureTime" type="time" /></div>
+    <div><label>Durée (minutes)</label><input asp-for="Input.DurationMinutes" type="number" min="1" max="1440" /></div>
+    <div><label>Point de départ</label><input asp-for="Input.StartPoint" maxlength="300" /></div>
+    <div><label>Zone visitée</label><input asp-for="Input.Zone" maxlength="300" /></div>
+    <div><label>Campagne</label><select asp-for="Input.CampaignId" asp-items="Model.Campaigns"></select></div>
+    <div><label>Responsable</label><select asp-for="Input.ManagerUserId" asp-items="Model.Managers"></select></div>
+</div>
+<p><label>Participants (Ctrl/Cmd pour plusieurs)</label><select asp-for="Input.ParticipantIds" asp-items="Model.Team" multiple size="6"></select></p>
+<p><label>Observations</label><textarea asp-for="Input.Observations" maxlength="4000"></textarea></p>
+<div class="actions"><button type="submit">@Strings.T("action.save")</button><a class="btn secondary" href="/Outings">@Strings.T("action.cancel")</a></div></form>

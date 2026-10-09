@@ -5,13 +5,14 @@ puis (phases suivantes) organiser les sorties commerciales et produire les rappo
 
 > Dépôt indépendant de `school` (USTHB Study). Voir `docs/architecture.md`, `docs/roadmap.md`, `docs/security.md`.
 
-## État (Phase 1 — Socle fonctionnel)
+## État (Phases 1 et 2)
 Terminé : authentification (cookie + JWT, verrouillage, limitation de débit), utilisateurs/rôles/permissions serveur, référentiels (géographie hiérarchique,
 activités, statuts configurables), fiches entreprises (CRUD, provenance par champ, historique, vérification, suppression logique), 3 états indépendants
 (recensement / traitement / résultat), filtres combinables + vues enregistrées + tri + pagination + colonnes configurables, affectation et actions en masse,
 import CSV/Excel (aperçu, mapping, validation, doublons, compte rendu), export CSV/Excel filtré selon les droits, détection de doublons + comparaison + fusion,
 journal d'audit, tableau de bord de recensement, import CSV de la géographie officielle.
-**Non fait (annoncé « bientôt » dans l'UI)** : campagnes, sorties, visites, relances, dépenses (phase 2) ; rapports PDF/Excel et indicateurs (phase 3) ;
+Phase 2 : campagnes, cibles/affectations, sorties, visites et appels (historique complet), relances, dépenses, notifications internes.
+**Non fait (annoncé « bientôt » dans l'UI)** : rapports PDF/Excel et indicateurs (phase 3) ;
 connecteurs Google Places & sources publiques (phase 4) ; carte, tests E2E complets (phase 5). Aucun connecteur externe n'existe encore : rien n'est simulé.
 
 ## Démarrage rapide (développement, SQLite, données de démo)
@@ -41,4 +42,4 @@ Résultats de la dernière exécution : voir `docs/roadmap.md`.
 
 ## Configuration
 `appsettings.json` (valeurs par défaut sans secret) ; secrets via variables d'environnement / user-secrets. Clés : `Database:*`, `ConnectionStrings:Default`,
-`Jwt:Secret` (obligatoire hors développement), `Bootstrap:*`, `Duplicates:*` (seuils), `Import:*` (limites), `RateLimit:LoginPerMinute`, `ForwardedHeaders:Enabled`, `Swagger:Enabled`, `Seed:DemoData`.
+`Jwt:Secret` (obligatoire hors développement), `Bootstrap:*`, `Duplicates:*` (seuils), `Import:*` (limites), `RateLimit:LoginPerMinute`, `ForwardedHeaders:Enabled`, `Notifications:Enabled` (rappels horaires), `Swagger:Enabled`, `Seed:DemoData`.

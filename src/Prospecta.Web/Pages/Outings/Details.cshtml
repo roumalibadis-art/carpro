@@ -1,0 +1,48 @@
+@page "{id:guid}"
+@model Prospecta.Web.Pages.Outings.DetailsModel
+@{ var d = Model.Data; var i = d.Data; ViewData["Title"] = "Sortie du " + i.Date.ToString("dd/MM/yyyy"); }
+<div class="row" style="justify-content:space-between;align-items:center"><h1>Sortie du @i.Date.ToString("dd/MM/yyyy") <span class="badge">@d.Status</span></h1>
+    <div class="actions">@if (d.CanManage && d.Status == OutingStatus.Planned) { <a class="btn" href="/Outings/Edit/@d.Id">Modifier</a> }<a class="btn secondary" href="/Outings">Retour</a></div></div>
+<div class="grid">
+    <div class="stat"><b>@d.VisitsPlanned</b><span>visites planifiées</span></div><div class="stat"><b>@d.VisitsDone</b><span>réalisées</span></div>
+    <div class="stat"><b>@d.VisitsCancelled / @d.VisitsPostponed</b><span>annulées / reportées</span></div>
+    <div class="stat"><b>@d.PlannedTotal.ToString("N2") DA</b><span>dépenses prévisionnelles</span></div><div class="stat"><b>@d.ActualTotal.ToString("N2") DA</b><span>dépenses réelles</span></div>
+</div>
+<section class="card"><dl class="kv">
+    <dt>Départ</dt><dd>@(i.DepartureTime?.ToString("HH:mm") ?? Strings.T("common.none")) · durée @(i.DurationMinutes is null ? Strings.T("common.none") : i.DurationMinutes + " min")</dd>
+    <dt>Point de départ</dt><dd>@(i.StartPoint ?? Strings.T("common.none"))</dd><dt>Zone visitée</dt><dd>@(i.Zone ?? Strings.T("common.none"))</dd>
+    <dt>Campagne</dt><dd>@(d.Campaign ?? Strings.T("common.none"))</dd><dt>Responsable</dt><dd>@d.Manager</dd>
+    <dt>Participants</dt><dd>@string.Join(", ", d.Participants.Select(p => p.Name))</dd>
+    <dt>Observations</dt><dd style="white-space:pre-wrap">@(i.Observations ?? Strings.T("common.none"))</dd></dl>
+    @if (d.CanManage && d.Status == OutingStatus.Planned)
+    {
+        <form method="post" asp-page-handler="Close" class="row" style="align-items:end" data-confirm="Clôturer cette sortie ?">
+            <div><label>Observations de clôture</label><input name="observations" maxlength="1000" /></div>
+            <select name="status"><option value="Done">Réalisée</option><option value="Cancelled">Annulée</option></select><button type="submit">Clôturer</button></form>
+    }
+</section>
+<h2>Visites de la sortie</h2>
+@if (Model.Visits.Count == 0) { <div class="card">@Strings.T("common.empty")</div> }
+else {
+    <div class="tablewrap"><table class="responsive"><thead><tr><th>Entreprise</th><th>Action</th><th>Par</th><th>Prévue</th><th>État</th><th>Résultat</th></tr></thead><tbody>
+    @foreach (var v in Model.Visits) { <tr><td data-label="Entreprise"><a href="/Businesses/Details/@v.BusinessId">@v.Business</a></td><td data-label="Action">@v.Action</td><td data-label="Par">@v.User</td><td data-label="Prévue">@AppPage.Local(v.ScheduledAt)</td><td data-label="État"><span class="badge">@v.Status</span></td><td data-label="Résultat">@(v.OutcomeLabel ?? "—")</td></tr> }
+    </tbody></table></div>
+}
+<h2>Dépenses</h2>
+<div class="tablewrap"><table class="responsive"><thead><tr><th>Date</th><th>Type</th><th>Catégorie</th><th>Montant</th><th>Description</th><th>Justificatif</th><th></th></tr></thead><tbody>
+@foreach (var e in d.Expenses)
+{
+    <tr><td data-label="Date">@e.Date.ToString("dd/MM/yyyy")</td><td data-label="Type">@(e.Kind == ExpenseKind.Planned ? "Prévisionnelle" : "Réelle")</td><td data-label="Catégorie">@e.Category</td><td data-label="Montant">@e.Amount.ToString("N2") DA</td>
+        <td data-label="Description">@(e.Description ?? "—")</td><td data-label="Justificatif">@(e.Receipt ?? "—")</td>
+        <td><form method="post" asp-page-handler="DeleteExpense" data-confirm="Supprimer cette dépense ?"><input type="hidden" name="expenseId" value="@e.Id" /><button class="secondary" type="submit">Supprimer</button></form></td></tr>
+}
+</tbody></table></div>
+@if (d.Status != OutingStatus.Cancelled)
+{
+    <form method="post" asp-page-handler="Expense" class="card"><h3>Ajouter une dépense</h3><div class="filters">
+        <div><label>Type</label><select name="kind"><option value="Actual">Réelle</option>@if (d.CanManage) { <option value="Planned">Prévisionnelle</option> }</select></div>
+        <div><label>Catégorie</label><select name="category"><option value="Transport">Transport</option><option value="Marketing">Supports marketing</option><option value="Other">Autres frais</option></select></div>
+        <div><label>Montant (DA)</label><input name="amount" type="number" min="0.01" step="0.01" required /></div><div><label>Date</label><input name="date" type="date" required value="@i.Date.ToString("yyyy-MM-dd")" /></div>
+        <div><label>Description</label><input name="description" maxlength="500" /></div><div><label>Référence du justificatif</label><input name="receipt" maxlength="200" /></div></div>
+        <div class="actions"><button type="submit">Ajouter</button></div></form>
+}

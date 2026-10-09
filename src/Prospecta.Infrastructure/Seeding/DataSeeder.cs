@@ -8,6 +8,7 @@ using Prospecta.Application.Identity;
 using Prospecta.Application.Security;
 using Prospecta.Domain.Common;
 using Prospecta.Domain.Geography;
+using Prospecta.Domain.Prospecting;
 using Prospecta.Infrastructure.Persistence;
 
 namespace Prospecta.Infrastructure.Seeding;
@@ -70,6 +71,7 @@ public static class DataSeeder
         if (db.Database.IsSqlite()) await db.Database.EnsureCreatedAsync(ct); else await db.Database.MigrateAsync(ct);
 
         await SeedRolesAsync(s, ct);
+        await GrantPhase2PermissionsAsync(s, db, ct);
         await SeedStatusesAsync(db, ct);
         await SeedWilayasAsync(db, ct);
         await SeedCategoriesAsync(db, ct);
@@ -87,6 +89,28 @@ public static class DataSeeder
             await roles.CreateAsync(role);
             foreach (var p in perms) await roles.AddClaimAsync(role, new Claim(Permissions.ClaimType, p));
         }
+    }
+
+    /// <summary>
+    /// Roles created before phase 2 lack the new permissions. They are granted once to the default roles (Admin: all; manager and salesperson: their defaults);
+    /// afterwards an administrator's edits are never overwritten (guarded by a flag).
+    /// </summary>
+    private static async Task GrantPhase2PermissionsAsync(IServiceProvider s, AppDbContext db, CancellationToken ct)
+    {
+        if (await db.SystemFlags.AnyAsync(f => f.Key == PermissionIntroductions.Phase2Flag, ct)) return;
+        var roles = s.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+        foreach (var (name, defaults) in Roles.DefaultPermissions)
+        {
+            var role = await roles.FindByNameAsync(name);
+            if (role is null) continue;
+            var have = (await roles.GetClaimsAsync(role)).Where(c => c.Type == Permissions.ClaimType).Select(c => c.Value).ToHashSet();
+            foreach (var p in PermissionIntroductions.Phase2.Where(p => defaults.Contains(p) && !have.Contains(p)))
+                await roles.AddClaimAsync(role, new Claim(Permissions.ClaimType, p));
+        }
+
+        db.SystemFlags.Add(new SystemFlag { Key = PermissionIntroductions.Phase2Flag, Value = "done" });
+        await db.SaveChangesAsync(ct);
+        s.GetRequiredService<Prospecta.Application.Abstractions.IPermissionStore>().Invalidate();
     }
 
     private static async Task SeedStatusesAsync(AppDbContext db, CancellationToken ct)

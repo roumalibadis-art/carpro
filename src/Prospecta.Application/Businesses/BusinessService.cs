@@ -201,7 +201,7 @@ public sealed class BusinessService(IAppDbContext db, ICurrentUser user, IAuditS
         return errors;
     }
 
-    private async Task<List<string>> ResolveGeographyAsync(BusinessInput i, CancellationToken ct)
+    public async Task<List<string>> ResolveGeographyAsync(BusinessInput i, CancellationToken ct)
     {
         var errors = new List<string>();
         var ids = new[] { i.WilayaId, i.DairaId, i.CommuneId, i.DistrictId }.Where(x => x is not null).Select(x => x!.Value).ToList();
@@ -263,7 +263,7 @@ public sealed class BusinessService(IAppDbContext db, ICurrentUser user, IAuditS
 
     // ---------- Write ----------
 
-    private async Task<Guid> StatusIdAsync(StatusKind kind, string code, CancellationToken ct) =>
+    internal async Task<Guid> StatusIdAsync(StatusKind kind, string code, CancellationToken ct) =>
         (await db.StatusValues.AsNoTracking().FirstAsync(s => s.Kind == kind && s.Code == code, ct)).Id;
 
     private static void ApplyAll(FieldUpdater u, BusinessInput i, FieldOrigin origin, string? reason = null)
@@ -323,7 +323,7 @@ public sealed class BusinessService(IAppDbContext db, ICurrentUser user, IAuditS
         var errors = await ValidateAsync(input, ct);
         if (errors.Count > 0) throw new ValidationException(errors);
 
-        await using var tx = await db.Database.BeginTransactionAsync(ct);
+        await using var tx = await UnitOfWork.BeginAsync(db.Database, ct);
         var b = await BuildNewAsync(input, FieldOrigin.Manual, new SourceInfo(SourceType.Manual, "manual"), ct);
         // The creator of a record stays able to work on it even without organization-wide visibility.
         if (!SeesAll)
@@ -345,7 +345,7 @@ public sealed class BusinessService(IAppDbContext db, ICurrentUser user, IAuditS
         var errors = await ValidateAsync(input, ct);
         if (errors.Count > 0) throw new ValidationException(errors);
 
-        await using var tx = await db.Database.BeginTransactionAsync(ct);
+        await using var tx = await UnitOfWork.BeginAsync(db.Database, ct);
         var b = await Scoped().Include(x => x.Provenances).Include(x => x.Sources).FirstOrDefaultAsync(x => x.Id == id, ct) ?? throw new NotFoundException();
         var identityBefore = (b.NormalizedName, b.NormalizedPhone, b.WebsiteHost, b.Address, b.Latitude, b.Longitude, b.CommuneId);
         var updater = new FieldUpdater(b, clock, user.Id, user.HasPermission(Permissions.BusinessVerify));
@@ -421,7 +421,8 @@ public sealed class BusinessService(IAppDbContext db, ICurrentUser user, IAuditS
         await db.SaveChangesAsync(ct);
     }
 
-    private void ApplyStatus(Business b, StatusKind kind, StatusValue status)
+    /// <summary>Sets one status dimension and records history/audit. No permission check: callers must have authorized the action.</summary>
+    internal void ApplyStatus(Business b, StatusKind kind, StatusValue status)
     {
         var now = clock.GetUtcNow().UtcDateTime;
         string? old;
@@ -460,7 +461,7 @@ public sealed class BusinessService(IAppDbContext db, ICurrentUser user, IAuditS
         var assigned = await StatusIdAsync(StatusKind.Processing, StatusCodes.Assigned, ct);
         var now = clock.GetUtcNow().UtcDateTime;
 
-        await using var tx = await db.Database.BeginTransactionAsync(ct);
+        await using var tx = await UnitOfWork.BeginAsync(db.Database, ct);
         var businesses = await Scoped().Include(b => b.Assignments).Where(b => businessIds.Contains(b.Id)).ToListAsync(ct);
         var done = 0;
         foreach (var b in businesses)
@@ -502,7 +503,7 @@ public sealed class BusinessService(IAppDbContext db, ICurrentUser user, IAuditS
         var status = await db.StatusValues.FirstOrDefaultAsync(s => s.Id == statusId && s.Kind == kind && s.IsActive, ct) ?? throw new ValidationException("Statut inconnu pour cette catégorie.");
         if (kind == StatusKind.Census && status.Code == StatusCodes.Verified && !user.HasPermission(Permissions.BusinessVerify))
             throw new ForbiddenException("Seule une personne habilitée à vérifier peut marquer des fiches « Vérifié ».");
-        await using var tx = await db.Database.BeginTransactionAsync(ct);
+        await using var tx = await UnitOfWork.BeginAsync(db.Database, ct);
         var list = await Scoped().Include(x => x.CensusStatus).Include(x => x.ProcessingStatus).Include(x => x.OutcomeStatus).Where(b => ids.Contains(b.Id)).ToListAsync(ct);
         foreach (var b in list) ApplyStatus(b, kind, status);
         await db.SaveChangesAsync(ct);

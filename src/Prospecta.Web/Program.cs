@@ -115,6 +115,7 @@ builder.Services.AddSwaggerGen(o =>
     o.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme { Type = SecuritySchemeType.Http, Scheme = "bearer", BearerFormat = "JWT" });
     o.AddSecurityRequirement(new OpenApiSecurityRequirement { [new OpenApiSecurityScheme { Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" } }] = [] });
 });
+builder.Services.AddHostedService<Prospecta.Web.Security.ReminderHostedService>();
 builder.Services.AddHealthChecks().AddDbContextCheck<Prospecta.Infrastructure.Persistence.AppDbContext>();
 builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(o => o.MultipartBodyLengthLimit = 6 * 1024 * 1024);
 

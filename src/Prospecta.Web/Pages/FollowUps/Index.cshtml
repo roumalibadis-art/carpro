@@ -1,0 +1,28 @@
+@page
+@model Prospecta.Web.Pages.FollowUps.IndexModel
+@{ ViewData["Title"] = "Relances"; }
+<h1>Relances</h1>
+<nav class="row" aria-label="Filtres rapides">
+    <a class="btn @(Model.When is null && Model.Status is null ? "" : "secondary")" href="/FollowUps">À faire</a>
+    <a class="btn @(Model.When == "overdue" ? "" : "secondary")" href="/FollowUps?When=overdue">En retard</a>
+    <a class="btn @(Model.When == "upcoming" ? "" : "secondary")" href="/FollowUps?When=upcoming">7 prochains jours</a>
+    <a class="btn @(Model.Status == FollowUpStatus.Done ? "" : "secondary")" href="/FollowUps?Status=Done">Effectuées</a>
+</nav>
+@if (Model.Users.Count > 0) { <form method="get" class="card row" style="align-items:end"><div><label>Utilisateur</label><select asp-for="UserId" asp-items="Model.Users" data-autosubmit></select></div></form> }
+@if (Model.Result.Items.Count == 0) { <div class="card">@Strings.T("common.empty")</div> }
+else
+{
+    <div class="tablewrap"><table class="responsive"><thead><tr><th>Échéance</th><th>Entreprise</th><th>Motif</th><th>Priorité</th><th>Responsable</th><th>État</th><th></th></tr></thead><tbody>
+    @foreach (var f in Model.Result.Items)
+    {
+        <tr><td data-label="Échéance">@f.DueDate.ToString("dd/MM/yyyy") @if (f.Overdue) { <span class="badge bad">en retard</span> }</td><td data-label="Entreprise"><a href="/Businesses/Details/@f.BusinessId">@f.Business</a></td>
+            <td data-label="Motif">@f.Reason@(f.Result is null ? "" : " — " + f.Result)</td><td data-label="Priorité">@f.Priority</td><td data-label="Responsable">@f.AssignedTo</td><td data-label="État"><span class="badge">@f.Status</span></td>
+            <td>@if (f.Status is FollowUpStatus.ToDo or FollowUpStatus.Postponed)
+                {
+                    <form method="post" asp-page-handler="Complete" class="row"><input type="hidden" name="id" value="@f.Id" /><input name="result" placeholder="Résultat" maxlength="2000" /><input type="date" name="nextDue" aria-label="Prochaine échéance" /><button type="submit">Effectuée</button></form>
+                    <form method="post" asp-page-handler="Postpone" class="row"><input type="hidden" name="id" value="@f.Id" /><input type="date" name="newDue" required aria-label="Nouvelle échéance" /><button class="secondary" type="submit">Reporter</button></form>
+                    <form method="post" asp-page-handler="Cancel" data-confirm="Annuler cette relance ?"><input type="hidden" name="id" value="@f.Id" /><button class="secondary" type="submit">Annuler</button></form>
+                }</td></tr>
+    }</tbody></table></div>
+    <partial name="_Pager" model="(Model.Result.Page, Model.Result.TotalPages, Model.Result.Total)" />
+}

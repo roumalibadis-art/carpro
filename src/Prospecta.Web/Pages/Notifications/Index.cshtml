@@ -1,0 +1,12 @@
+@page
+@model Prospecta.Web.Pages.Notifications.IndexModel
+@{ ViewData["Title"] = "Notifications"; }
+<div class="row" style="justify-content:space-between;align-items:center"><h1>Notifications</h1><form method="post" asp-page-handler="ReadAll"><button class="secondary" type="submit">Tout marquer comme lu</button></form></div>
+@if (Model.Result.Items.Count == 0) { <div class="card">Aucune notification.</div> }
+@foreach (var n in Model.Result.Items)
+{
+    <div class="card" style="@(n.Read ? "opacity:.65" : "")"><b>@n.Title</b><br /><span class="muted">@n.Body · @AppPage.Local(n.CreatedAt)</span>
+        <form method="post" asp-page-handler="Read" class="actions"><input type="hidden" name="id" value="@n.Id" /><input type="hidden" name="link" value="@n.Link" />
+            <button type="submit" class="secondary">@(n.Link is null ? "Marquer comme lu" : "Ouvrir")</button></form></div>
+}
+<partial name="_Pager" model="(Model.Result.Page, Model.Result.TotalPages, Model.Result.Total)" />

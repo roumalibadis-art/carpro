@@ -369,7 +369,7 @@ public sealed class ImportService(
         var refs = await LoadRefsAsync(ct);
         var statuses = includePotentialDuplicates ? new[] { ImportRowStatus.Valid, ImportRowStatus.PotentialDuplicate } : [ImportRowStatus.Valid];
 
-        await using var tx = await db.Database.BeginTransactionAsync(ct);
+        await using var tx = await UnitOfWork.BeginAsync(db.Database, ct);
         var rows = await db.ImportRows.Where(r => r.BatchId == batchId && statuses.Contains(r.Status)).OrderBy(r => r.RowNumber).ToListAsync(ct);
         var created = new List<(ImportRow Row, Domain.Businesses.Business Biz)>();
         foreach (var row in rows)

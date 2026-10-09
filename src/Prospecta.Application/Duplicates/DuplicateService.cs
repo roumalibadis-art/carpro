@@ -218,7 +218,7 @@ public sealed class DuplicateService(
         if (survivorId != c.BusinessAId && survivorId != c.BusinessBId) throw new ValidationException("La fiche conservée doit appartenir au couple.");
         var otherId = survivorId == c.BusinessAId ? c.BusinessBId : c.BusinessAId;
 
-        await using var tx = await db.Database.BeginTransactionAsync(ct);
+        await using var tx = await UnitOfWork.BeginAsync(db.Database, ct);
         var survivor = await db.Businesses.Include(x => x.Provenances).Include(x => x.Sources).Include(x => x.Assignments).FirstOrDefaultAsync(x => x.Id == survivorId, ct) ?? throw new NotFoundException();
         var other = await db.Businesses.Include(x => x.Provenances).Include(x => x.Sources).Include(x => x.Assignments).FirstOrDefaultAsync(x => x.Id == otherId, ct) ?? throw new NotFoundException();
         var now = clock.GetUtcNow().UtcDateTime;

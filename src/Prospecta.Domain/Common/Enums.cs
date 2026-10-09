@@ -32,3 +32,20 @@ public enum ImportStatus { Uploaded = 1, Mapped = 2, Committed = 3, Cancelled = 
 public enum ImportRowStatus { Pending = 1, Valid = 2, Invalid = 3, PotentialDuplicate = 4, Imported = 5, Skipped = 6 }
 
 public enum SavedFilterScope { Personal = 1, Shared = 2 }
+
+public enum CampaignStatus { Draft = 1, Active = 2, Completed = 3, Cancelled = 4 }
+
+public enum OutingStatus { Planned = 1, Done = 2, Cancelled = 3 }
+
+public enum VisitAction { Call = 1, Visit = 2, Appointment = 3, Demo = 4, FollowUp = 5 }
+
+/// <summary>Planned, cancelled, done and postponed visits are different things and are never merged.</summary>
+public enum VisitStatus { Planned = 1, Done = 2, Cancelled = 3, Postponed = 4 }
+
+public enum InterestLevel { None = 1, Low = 2, Medium = 3, High = 4 }
+
+public enum FollowUpStatus { ToDo = 1, Done = 2, Postponed = 3, Cancelled = 4 }
+
+public enum ExpenseKind { Planned = 1, Actual = 2 }
+
+public enum ExpenseCategory { Transport = 1, Marketing = 2, Other = 3 }

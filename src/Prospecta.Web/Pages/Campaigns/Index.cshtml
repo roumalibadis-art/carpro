@@ -1,0 +1,22 @@
+@page
+@model Prospecta.Web.Pages.Campaigns.IndexModel
+@{ ViewData["Title"] = "Campagnes"; }
+<div class="row" style="justify-content:space-between;align-items:center"><h1>Campagnes de prospection</h1>
+    @if (User.HasClaim(Permissions.ClaimType, Permissions.CampaignManage)) { <a class="btn" href="/Campaigns/Edit">+ Nouvelle campagne</a> }</div>
+<form method="get" class="card row" style="align-items:end">
+    <div><label>Recherche</label><input asp-for="Search" type="search" /></div>
+    <div><label>État</label><select asp-for="Status" asp-items="Html.GetEnumSelectList<CampaignStatus>()"><option value="">Tous</option></select></div>
+    <button type="submit">Filtrer</button><a class="btn secondary" href="/Campaigns">Réinitialiser</a>
+</form>
+@if (Model.Result.Items.Count == 0) { <div class="card">@Strings.T("common.empty")</div> }
+else
+{
+    <div class="tablewrap"><table class="responsive"><thead><tr><th>Campagne</th><th>État</th><th>Période</th><th>Responsable</th><th>Cibles</th><th>Visites réalisées / objectif</th></tr></thead><tbody>
+    @foreach (var c in Model.Result.Items)
+    {
+        <tr><td data-label="Campagne"><a href="/Campaigns/Details/@c.Id">@c.Name</a></td><td data-label="État"><span class="badge">@c.Status</span></td>
+            <td data-label="Période">@c.StartDate.ToString("dd/MM/yyyy") → @c.EndDate.ToString("dd/MM/yyyy")</td><td data-label="Responsable">@c.Manager</td><td data-label="Cibles">@c.Targets</td>
+            <td data-label="Visites">@c.VisitsDone@(c.VisitTarget is null ? " / non fixé" : " / " + c.VisitTarget)</td></tr>
+    }</tbody></table></div>
+    <partial name="_Pager" model="(Model.Result.Page, Model.Result.TotalPages, Model.Result.Total)" />
+}

@@ -99,6 +99,28 @@
     </section>
 </div>
 
+@if (Can(Permissions.ActivityRecord))
+{
+<section class="card">
+    <div class="row" style="justify-content:space-between;align-items:center"><h2>Visites, appels et relances</h2><a class="btn" href="/Visits/New?businessId=@d.Id">+ Planifier / enregistrer une action</a></div>
+    @if (Model.Visits.Count == 0) { <p class="muted">Aucune action enregistrée pour cette entreprise.</p> }
+    else
+    {
+        <div class="tablewrap"><table class="responsive"><thead><tr><th>Date</th><th>Action</th><th>Par</th><th>État</th><th>Résultat</th><th>Responsable rencontré</th><th>Commentaire</th></tr></thead><tbody>
+        @foreach (var v in Model.Visits)
+        {
+            <tr><td data-label="Date">@AppPage.Local(v.ScheduledAt)</td><td data-label="Action">@v.Action</td><td data-label="Par">@v.User</td><td data-label="État"><span class="badge">@v.Status</span></td>
+                <td data-label="Résultat">@(v.OutcomeLabel ?? "—")@(v.Interest is null ? "" : " · intérêt " + v.Interest)</td><td data-label="Rencontré">@(v.ContactMet ?? "—")</td><td data-label="Commentaire">@(v.Comment ?? "—")</td></tr>
+        }</tbody></table></div>
+    }
+    <h3>Relances</h3>
+    @foreach (var f in Model.FollowUps) { <p>@f.DueDate.ToString("dd/MM/yyyy") — @f.Reason <span class="badge @(f.Overdue ? "bad" : "")">@(f.Overdue ? "en retard" : f.Status.ToString())</span> <span class="muted">@f.AssignedTo</span></p> }
+    <form method="post" asp-page-handler="FollowUp" class="row" style="align-items:end">
+        <div><label>Nouvelle relance — échéance</label><input type="date" name="due" required /></div><div><label>Motif</label><input name="reason" required maxlength="500" /></div>
+        <div><label>Priorité</label><select name="priority"><option value="Normal">Normale</option><option value="High">Haute</option><option value="Low">Basse</option></select></div><button type="submit" class="secondary">Créer la relance</button></form>
+</section>
+}
+
 <section class="card">
     <h2>Historique des modifications</h2>
     <div class="tablewrap"><table class="responsive">

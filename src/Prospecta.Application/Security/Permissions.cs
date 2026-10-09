@@ -19,11 +19,16 @@ public static class Permissions
     public const string UserManage = "User.Manage";
     public const string RoleManage = "Role.Manage";
     public const string AuditView = "Audit.View";
+    public const string CampaignManage = "Campaign.Manage";       // create/edit campaigns, targets, see all campaigns
+    public const string OutingManage = "Outing.Manage";           // create/edit outings, see all outings
+    public const string ActivityRecord = "Activity.Record";       // own visits, calls, follow-ups, expenses
+    public const string ActivityViewAll = "Activity.ViewAll";     // team activity (managers)
 
     public static readonly IReadOnlyList<string> All =
     [
         BusinessView, BusinessViewAll, BusinessCreate, BusinessEdit, BusinessDelete, BusinessVerify, BusinessAssign,
         BusinessImport, BusinessExport, DuplicateManage, ReferenceManage, UserManage, RoleManage, AuditView,
+        CampaignManage, OutingManage, ActivityRecord, ActivityViewAll,
     ];
 }
 
@@ -43,8 +48,15 @@ public static class Roles
         [
             Permissions.BusinessView, Permissions.BusinessViewAll, Permissions.BusinessCreate, Permissions.BusinessEdit,
             Permissions.BusinessVerify, Permissions.BusinessAssign, Permissions.BusinessImport, Permissions.BusinessExport,
-            Permissions.DuplicateManage,
+            Permissions.DuplicateManage, Permissions.CampaignManage, Permissions.OutingManage, Permissions.ActivityRecord, Permissions.ActivityViewAll,
         ],
-        [Salesperson] = [Permissions.BusinessView, Permissions.BusinessEdit, Permissions.BusinessCreate],
+        [Salesperson] = [Permissions.BusinessView, Permissions.BusinessEdit, Permissions.BusinessCreate, Permissions.ActivityRecord],
     };
+}
+
+/// <summary>Permissions introduced after a role was first seeded; granted once to the default roles (see seeder).</summary>
+public static class PermissionIntroductions
+{
+    public const string Phase2Flag = "seed:permissions:phase2";
+    public static readonly string[] Phase2 = [Permissions.CampaignManage, Permissions.OutingManage, Permissions.ActivityRecord, Permissions.ActivityViewAll];
 }

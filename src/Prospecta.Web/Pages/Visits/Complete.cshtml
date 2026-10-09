@@ -1,0 +1,21 @@
+@page "{id:guid}"
+@model Prospecta.Web.Pages.Visits.CompleteModel
+@{ ViewData["Title"] = "Enregistrer le résultat"; }
+<h1>Résultat — @Model.Visit.Business</h1>
+<p>@Model.Visit.Action prévue le @AppPage.Local(Model.Visit.ScheduledAt) (@Model.Visit.Status)</p>
+@if (!ModelState.IsValid) { <div class="alert err" role="alert"><ul>@foreach (var e in ModelState.Values.SelectMany(v => v.Errors)) { <li>@e.ErrorMessage</li> }</ul></div> }
+@if (Model.Visit.Status != VisitStatus.Planned) { <div class="alert warn">Cette action est déjà « @Model.Visit.Status » : l'historique n'est pas modifiable.</div> }
+else
+{
+<form method="post" class="card"><div class="filters">
+    <div><label>Responsable rencontré</label><input asp-for="Result.ContactMet" maxlength="200" /></div>
+    <div><label>Niveau d'intérêt</label><select asp-for="Result.Interest" asp-items="Html.GetEnumSelectList<InterestLevel>()"><option value="">—</option></select></div>
+    <div><label>Résultat commercial</label><select asp-for="Result.OutcomeStatusId" asp-items="Model.Outcomes"></select></div>
+    <div><label>Prochaine relance le</label><input asp-for="Result.NextFollowUpDate" type="date" /></div></div>
+    <p><label>Prochaine action</label><input asp-for="Result.NextAction" maxlength="500" style="width:100%" /></p>
+    <p><label>Besoin identifié</label><textarea asp-for="Result.NeedIdentified"></textarea></p>
+    <p><label>Questions et objections</label><textarea asp-for="Result.Objections"></textarea></p>
+    <p><label>Informations ou démonstrations demandées</label><textarea asp-for="Result.RequestedInfo"></textarea></p>
+    <p><label>Commentaire</label><textarea asp-for="Result.Comment"></textarea></p>
+    <div class="actions"><button type="submit">@Strings.T("action.save")</button><a class="btn secondary" href="/Visits">@Strings.T("action.cancel")</a></div></form>
+}

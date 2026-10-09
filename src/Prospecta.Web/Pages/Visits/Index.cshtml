@@ -1,0 +1,27 @@
+@page
+@model Prospecta.Web.Pages.Visits.IndexModel
+@{ ViewData["Title"] = "Visites et activités"; ViewData["PageKey"] = "Filter.Page"; }
+<div class="row" style="justify-content:space-between;align-items:center"><h1>Visites et activités</h1><a class="btn" href="/Visits/New">+ Planifier / enregistrer</a></div>
+<form method="get" class="card"><div class="filters">
+    <div><label>Du</label><input asp-for="Filter.From" type="date" /></div><div><label>Au</label><input asp-for="Filter.To" type="date" /></div>
+    <div><label>État</label><select asp-for="Filter.Status" asp-items="Html.GetEnumSelectList<VisitStatus>()"><option value="">Tous</option></select></div>
+    @if (Model.Users.Count > 0) { <div><label>Utilisateur</label><select asp-for="Filter.UserId" asp-items="Model.Users"></select></div> }
+</div><div class="actions"><button type="submit">Filtrer</button><a class="btn secondary" href="/Visits">Réinitialiser</a></div></form>
+@if (Model.Result.Items.Count == 0) { <div class="card">@Strings.T("common.empty")</div> }
+else
+{
+    <div class="tablewrap"><table class="responsive"><thead><tr><th>Prévue</th><th>Entreprise</th><th>Action</th><th>Par</th><th>État</th><th>Résultat</th><th>Prochaine relance</th><th></th></tr></thead><tbody>
+    @foreach (var v in Model.Result.Items)
+    {
+        <tr><td data-label="Prévue">@AppPage.Local(v.ScheduledAt)</td><td data-label="Entreprise"><a href="/Businesses/Details/@v.BusinessId">@v.Business</a></td><td data-label="Action">@v.Action</td><td data-label="Par">@v.User</td>
+            <td data-label="État"><span class="badge @(v.Status == VisitStatus.Done ? "ok" : v.Status == VisitStatus.Cancelled ? "bad" : "")">@v.Status</span></td>
+            <td data-label="Résultat">@(v.OutcomeLabel ?? "—")@(v.Interest is null ? "" : " · intérêt " + v.Interest)</td><td data-label="Relance">@(v.NextFollowUpDate?.ToString("dd/MM/yyyy") ?? "—")</td>
+            <td>@if (v.Status == VisitStatus.Planned)
+                {
+                    <a href="/Visits/Complete/@v.Id">Enregistrer le résultat</a>
+                    <form method="post" asp-page-handler="Postpone" class="row"><input type="hidden" name="id" value="@v.Id" /><input type="datetime-local" name="newDate" required aria-label="Nouvelle date" /><button class="secondary" type="submit">Reporter</button></form>
+                    <form method="post" asp-page-handler="Cancel" data-confirm="Annuler cette action ?"><input type="hidden" name="id" value="@v.Id" /><input name="reason" placeholder="Motif" maxlength="300" /><button class="secondary" type="submit">Annuler</button></form>
+                }</td></tr>
+    }</tbody></table></div>
+    <partial name="_Pager" model="(Model.Result.Page, Model.Result.TotalPages, Model.Result.Total)" />
+}

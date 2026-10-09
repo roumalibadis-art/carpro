@@ -1,0 +1,44 @@
+@page "{id:guid}"
+@model Prospecta.Web.Pages.Campaigns.DetailsModel
+@{ var d = Model.Data; var i = d.Data; ViewData["Title"] = i.Name; string Pct(int a, int? b) => b is > 0 ? $"{Math.Min(100, a * 100 / b.Value)}" : "0"; }
+<div class="row" style="justify-content:space-between;align-items:center"><h1>@i.Name <span class="badge">@d.Status</span></h1>
+    <div class="actions">
+    @if (d.CanManage && d.Status is CampaignStatus.Draft or CampaignStatus.Active) { <a class="btn" href="/Campaigns/Edit/@d.Id">Modifier</a> }
+    <a class="btn secondary" href="/Campaigns">Retour</a></div></div>
+<div class="grid">
+    <div class="stat"><b>@d.Targets</b><span>entreprises ciblées (@d.AssignedTargets affectées)</span></div>
+    <div class="stat"><b>@d.TargetsReached</b><span>entreprises distinctes traitées</span></div>
+    <div class="stat"><b>@d.VisitsDone@(i.VisitTarget is null ? "" : " / " + i.VisitTarget)</b><span>visites réalisées (objectif)</span><div class="bar"><i style="width:@(Pct(d.VisitsDone, i.VisitTarget))%"></i></div></div>
+    <div class="stat"><b>@d.VisitsPlanned</b><span>actions planifiées</span></div>
+    <div class="stat"><b>@d.ExpensesActual.ToString("N2") DA</b><span>dépenses réelles (prévues : @d.ExpensesPlanned.ToString("N2"))@(d.Budget is null ? "" : " · budget " + d.Budget.Value.ToString("N2"))</span></div>
+</div>
+<section class="card"><dl class="kv">
+    <dt>Période</dt><dd>@i.StartDate.ToString("dd/MM/yyyy") → @i.EndDate.ToString("dd/MM/yyyy")</dd><dt>Responsable</dt><dd>@d.Manager</dd>
+    <dt>Secteur</dt><dd>@(d.Category ?? Strings.T("common.none"))</dd><dt>Zone</dt><dd>@(d.Zone ?? Strings.T("common.none"))</dd>
+    <dt>Objectif</dt><dd style="white-space:pre-wrap">@(i.Objective ?? Strings.T("common.none"))</dd>
+    <dt>Participants</dt><dd>@(d.Participants.Count == 0 ? "—" : string.Join(", ", d.Participants.Select(p => p.Name)))</dd>
+    <dt>Notes</dt><dd style="white-space:pre-wrap">@(i.Notes ?? Strings.T("common.none"))</dd></dl>
+    @if (d.CanManage)
+    {
+        <div class="actions">
+        @if (d.Status == CampaignStatus.Draft) { <form method="post" asp-page-handler="Status"><input type="hidden" name="status" value="Active" /><button type="submit">Activer</button></form> }
+        @if (d.Status == CampaignStatus.Active) { <form method="post" asp-page-handler="Status" data-confirm="Terminer la campagne ? Elle ne sera plus modifiable."><input type="hidden" name="status" value="Completed" /><button type="submit">Terminer</button></form> }
+        @if (d.Status is CampaignStatus.Draft or CampaignStatus.Active) { <form method="post" asp-page-handler="Status" data-confirm="Annuler la campagne ?"><input type="hidden" name="status" value="Cancelled" /><button type="submit" class="danger">Annuler</button></form> }
+        </div>
+        <p class="muted">Pour cibler des entreprises : <a href="/Businesses">Entreprises</a> → sélectionnez-les → « Ajouter à une campagne » (avec affectation à un commercial).</p>
+    }
+</section>
+<h2>Entreprises ciblées</h2>
+@if (Model.Targets.Items.Count == 0) { <div class="card">@Strings.T("common.empty")</div> }
+else
+{
+    <div class="tablewrap"><table class="responsive"><thead><tr><th>Entreprise</th><th>Commune</th><th>Affectée à</th><th>Traitement</th><th>Résultat</th><th>Actions réalisées</th><th>Dernière</th><th></th></tr></thead><tbody>
+    @foreach (var t in Model.Targets.Items)
+    {
+        <tr><td data-label="Entreprise"><a href="/Businesses/Details/@t.BusinessId">@t.Business</a></td><td data-label="Commune">@(t.Commune ?? "—")</td><td data-label="Affectée à">@(t.AssignedTo ?? "—")</td>
+            <td data-label="Traitement">@t.Processing</td><td data-label="Résultat">@t.Outcome</td><td data-label="Actions">@t.VisitsDone</td><td data-label="Dernière">@(t.LastVisitAt is null ? "—" : AppPage.Local(t.LastVisitAt.Value))</td>
+            <td>@if (d.CanManage && t.VisitsDone == 0) { <form method="post" asp-page-handler="Remove" data-confirm="Retirer cette entreprise de la campagne ?"><input type="hidden" name="businessId" value="@t.BusinessId" /><button class="secondary" type="submit">Retirer</button></form> }
+                else { <a href="/Visits/New?businessId=@t.BusinessId&campaignId=@d.Id">Agir</a> }</td></tr>
+    }</tbody></table></div>
+    <partial name="_Pager" model="(Model.Targets.Page, Model.Targets.TotalPages, Model.Targets.Total)" />
+}

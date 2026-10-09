@@ -92,6 +92,11 @@
                 <div><label>Affecter à</label><select name="userId" asp-items="Model.Users"></select></div>
                 <button type="submit" name="bulk" value="assign" data-confirm="Affecter les entreprises sélectionnées à cet utilisateur ?">Affecter</button>
             }
+            @if (Model.CampaignChoices.Count > 1)
+            {
+                <div><label>Ajouter à une campagne</label><select name="campaignId" asp-items="Model.CampaignChoices"></select></div>
+                <button type="submit" name="bulk" value="campaign" data-confirm="Ajouter les entreprises sélectionnées à cette campagne (avec l'utilisateur choisi dans « Affecter à » comme responsable) ?">Ajouter à la campagne</button>
+            }
             @if (CanEdit)
             {
                 <div><label>Changer un statut</label>

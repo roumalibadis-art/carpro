@@ -43,6 +43,7 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
             ["Bootstrap:AdminPassword"] = AdminPassword,
             ["Jwt:Secret"] = "integration-tests-secret-key-0123456789-abcdef",
             ["RateLimit:LoginPerMinute"] = "1000",
+            ["Notifications:Enabled"] = "false",
         }));
         if (MySqlBase is not null) return;
         builder.ConfigureServices(s =>
