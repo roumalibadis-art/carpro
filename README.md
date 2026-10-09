@@ -5,7 +5,7 @@ puis (phases suivantes) organiser les sorties commerciales et produire les rappo
 
 > Dépôt indépendant de `school` (USTHB Study). Voir `docs/architecture.md`, `docs/roadmap.md`, `docs/security.md`.
 
-## État (Phases 1 à 4)
+## État (Phases 1 à 5 — terminé)
 Terminé : authentification (cookie + JWT, verrouillage, limitation de débit), utilisateurs/rôles/permissions serveur, référentiels (géographie hiérarchique,
 activités, statuts configurables), fiches entreprises (CRUD, provenance par champ, historique, vérification, suppression logique), 3 états indépendants
 (recensement / traitement / résultat), filtres combinables + vues enregistrées + tri + pagination + colonnes configurables, affectation et actions en masse,
@@ -33,12 +33,15 @@ Nouvelle migration : `dotnet ef migrations add <Nom> -p src/Prospecta.Infrastruc
 Premier chargement géographique : se connecter en admin → *Géographie* → importer un CSV `wilaya;daira;commune[;quartier]` issu d'une source officielle
 (les 58 wilayas sont pré-chargées ; les daïras/communes ne sont **pas** inventées).
 
+## Déploiement et exploitation
+Voir `docs/operations.md` (installation Linux sans Docker, systemd, nginx/TLS, sauvegarde et restauration testées, conservation et suppression des données) et `deploy/`.
+
 ## Tests
 ```bash
 dotnet test Prospecta.sln                                                    # unitaires + intégration (SQLite en mémoire)
 PROSPECTA_TEST_MYSQL='Server=localhost;User=u;Password=p;' dotnet test Prospecta.sln   # la même suite sur MySQL réel (bases jetables)
 ```
-Résultats de la dernière exécution : voir `docs/roadmap.md`.
+E2E navigateur réel + accessibilité : `cd e2e && npm install && node run.mjs` (voir `e2e/README.md`). Résultats de la dernière exécution : `docs/roadmap.md`.
 
 ## Configuration
 `appsettings.json` (valeurs par défaut sans secret) ; secrets via variables d'environnement / user-secrets. Clés : `Database:*`, `ConnectionStrings:Default`,

@@ -13,32 +13,32 @@
 <form method="post" class="card">
     <input type="hidden" name="Type" value="@Model.Type" />
     <div class="filters">
-        <div><label>Titre (facultatif)</label><input asp-for="Params.Title" maxlength="250" /></div>
+        <div><label for="Params_Title">Titre (facultatif)</label><input asp-for="Params.Title" maxlength="250" /></div>
         @if (needsPeriod)
         {
-            <div><label>Du *</label><input asp-for="Params.From" type="date" required /></div><div><label>Au *</label><input asp-for="Params.To" type="date" required /></div>
-            <div><label>Campagne</label><select asp-for="Params.CampaignId" asp-items="Model.Campaigns"></select></div>
-            <div><label>Secteur</label><select asp-for="Params.CategoryId" asp-items="Model.Categories"></select></div>
-            @if (Model.Type == ReportType.Individual) { <div><label>Commercial</label><select asp-for="Params.UserId" asp-items="Model.Users"></select></div> }
+            <div><label for="Params_From">Du *</label><input asp-for="Params.From" type="date" required /></div><div><label for="Params_To">Au *</label><input asp-for="Params.To" type="date" required /></div>
+            <div><label for="Params_CampaignId">Campagne</label><select asp-for="Params.CampaignId" asp-items="Model.Campaigns"></select></div>
+            <div><label for="Params_CategoryId">Secteur</label><select asp-for="Params.CategoryId" asp-items="Model.Categories"></select></div>
+            @if (Model.Type == ReportType.Individual) { <div><label for="Params_UserId">Commercial</label><select asp-for="Params.UserId" asp-items="Model.Users"></select></div> }
         }
-        @if (Model.Type == ReportType.OutingBalance) { <div><label>Sortie *</label><select asp-for="Params.OutingId" asp-items="Model.Outings"></select></div> }
+        @if (Model.Type == ReportType.OutingBalance) { <div><label for="Params_OutingId">Sortie *</label><select asp-for="Params.OutingId" asp-items="Model.Outings"></select></div> }
         @if (Model.Type == ReportType.MarketStudy)
         {
-            <div><label>Recherche</label><input asp-for="Filter.Search" /></div>
+            <div><label for="Filter_Search">Recherche</label><input asp-for="Filter.Search" /></div>
             <div data-geo-chain style="display:contents">
-                <div><label>Wilaya</label><select data-geo asp-for="Filter.WilayaId" asp-items="Model.Wilayas"></select></div>
-                <div><label>Daïra</label><select data-geo data-placeholder="Toutes" asp-for="Filter.DairaId" asp-items="Model.Dairas"></select></div>
-                <div><label>Commune</label><select data-geo data-placeholder="Toutes" asp-for="Filter.CommuneId" asp-items="Model.Communes"></select></div>
+                <div><label for="Filter_WilayaId">Wilaya</label><select data-geo asp-for="Filter.WilayaId" asp-items="Model.Wilayas"></select></div>
+                <div><label for="Filter_DairaId">Daïra</label><select data-geo data-placeholder="Toutes" asp-for="Filter.DairaId" asp-items="Model.Dairas"></select></div>
+                <div><label for="Filter_CommuneId">Commune</label><select data-geo data-placeholder="Toutes" asp-for="Filter.CommuneId" asp-items="Model.Communes"></select></div>
             </div>
-            <div><label>Activité</label><select asp-for="Filter.CategoryId" asp-items="Model.Categories"></select></div>
+            <div><label for="Filter_CategoryId">Activité</label><select asp-for="Filter.CategoryId" asp-items="Model.Categories"></select></div>
         }
     </div>
-    @if (Model.Type == ReportType.MarketStudy) { <p><label>Objectif et périmètre de l'étude</label><textarea asp-for="Params.Objective"></textarea></p> }
+    @if (Model.Type == ReportType.MarketStudy) { <p><label for="Params_Objective">Objectif et périmètre de l'étude</label><textarea asp-for="Params.Objective"></textarea></p> }
     @if (Model.Type == ReportType.OutingBalance)
     {
-        <p><label>Retours positifs</label><textarea asp-for="Params.PositiveFeedback"></textarea></p>
-        <p><label>Difficultés rencontrées</label><textarea asp-for="Params.Difficulties"></textarea></p>
-        <p><label>Améliorations proposées</label><textarea asp-for="Params.Improvements"></textarea></p>
+        <p><label for="Params_PositiveFeedback">Retours positifs</label><textarea asp-for="Params.PositiveFeedback"></textarea></p>
+        <p><label for="Params_Difficulties">Difficultés rencontrées</label><textarea asp-for="Params.Difficulties"></textarea></p>
+        <p><label for="Params_Improvements">Améliorations proposées</label><textarea asp-for="Params.Improvements"></textarea></p>
     }
     <p><label><input type="checkbox" asp-for="Share" /> Partager ce rapport avec ma hiérarchie (responsable / administrateur) — privé par défaut</label></p>
     <div class="actions"><button type="submit" asp-page-handler="Preview" class="secondary">Prévisualiser</button><button type="submit" asp-page-handler="Save" data-confirm="Enregistrer ce rapport ? Ses chiffres seront figés.">Enregistrer le rapport</button></div>

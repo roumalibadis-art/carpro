@@ -4,10 +4,10 @@
 <h1>Évaluation et indicateurs</h1>
 @if (!ModelState.IsValid) { <div class="alert err" role="alert">@Html.ValidationSummary(true)</div> }
 <form method="get" class="card"><div class="filters">
-    <div><label>Du</label><input asp-for="From" type="date" required /></div><div><label>Au</label><input asp-for="To" type="date" required /></div>
-    <div><label>Campagne</label><select asp-for="CampaignId" asp-items="Model.Campaigns"></select></div>
-    <div><label>Utilisateur</label><select asp-for="UserId" asp-items="Model.Users"></select></div>
-    <div><label>Secteur</label><select asp-for="CategoryId" asp-items="Model.Categories"></select></div>
+    <div><label for="From">Du</label><input asp-for="From" type="date" required /></div><div><label for="To">Au</label><input asp-for="To" type="date" required /></div>
+    <div><label for="CampaignId">Campagne</label><select asp-for="CampaignId" asp-items="Model.Campaigns"></select></div>
+    <div><label for="UserId">Utilisateur</label><select asp-for="UserId" asp-items="Model.Users"></select></div>
+    <div><label for="CategoryId">Secteur</label><select asp-for="CategoryId" asp-items="Model.Categories"></select></div>
 </div><div class="actions"><button type="submit">Calculer</button><a class="btn secondary" href="/Evaluation">Réinitialiser</a></div></form>
 @if (Model.Data is { } d)
 {

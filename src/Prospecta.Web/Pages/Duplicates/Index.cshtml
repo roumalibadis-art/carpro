@@ -7,7 +7,7 @@
 </div>
 <p class="muted">Les fiches ne sont jamais fusionnées automatiquement : chaque couple est examiné par une personne.</p>
 <form method="get" class="card row" style="align-items:end">
-    <div><label>État</label><select asp-for="Status" asp-items="Html.GetEnumSelectList<DuplicateStatus>()" data-autosubmit></select></div>
+    <div><label for="Status">État</label><select asp-for="Status" asp-items="Html.GetEnumSelectList<DuplicateStatus>()" data-autosubmit></select></div>
     <noscript><button type="submit">Filtrer</button></noscript>
 </form>
 @if (Model.Result.Items.Count == 0) { <div class="card">@Strings.T("common.empty")</div> }

@@ -1,5 +1,5 @@
-:root { --bg:#f5f6f8; --fg:#1d2433; --muted:#667085; --card:#fff; --line:#e1e4ea; --brand:#1f5fbf; --brand-d:#174a96; --ok:#1a7f4b; --warn:#b26b00; --bad:#b42318; --soft:#eef3fb; }
-@media (prefers-color-scheme: dark) { :root { --bg:#10141c; --fg:#e6e9f0; --muted:#98a2b3; --card:#181e29; --line:#2a3342; --brand:#6aa3ff; --brand-d:#8fbaff; --soft:#1c2636; } }
+:root { --bg:#f5f6f8; --fg:#1d2433; --muted:#667085; --card:#fff; --line:#e1e4ea; --brand:#1f5fbf; --brand-d:#174a96; --ok:#1a7f4b; --warn:#8a5300; --bad:#b42318; --soft:#eef3fb; }
+@media (prefers-color-scheme: dark) { :root { --bg:#10141c; --fg:#e6e9f0; --muted:#98a2b3; --card:#181e29; --line:#2a3342; --brand:#6aa3ff; --brand-d:#8fbaff; --soft:#1c2636; --ok:#6fd3a0; --warn:#f0c36d; --bad:#f7a59d; } }
 * { box-sizing:border-box; }
 body { margin:0; font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; background:var(--bg); color:var(--fg); }
 a { color:var(--brand); } h1 { font-size:1.5rem; margin:.2rem 0 1rem; } h2 { font-size:1.15rem; margin:1.5rem 0 .6rem; } h3 { font-size:1rem; }

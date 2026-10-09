@@ -4,7 +4,7 @@
 <div class="row" style="justify-content:space-between;align-items:center"><h1>@ViewData["Title"]</h1><a class="btn" href="/Reports/New">+ Nouveau rapport</a></div>
 <nav class="row"><a class="btn @(Model.Team ? "secondary" : "")" href="/Reports">Mes rapports</a>@if (CanTeam) { <a class="btn @(Model.Team ? "" : "secondary")" href="/Reports?Team=true">Rapports partagés par l'équipe</a> }</nav>
 <form method="get" class="card row" style="align-items:end"><input type="hidden" name="Team" value="@Model.Team.ToString().ToLower()" />
-    <div><label>Type</label><select asp-for="Type" data-autosubmit><option value="">Tous</option><option value="MarketStudy">Étude de marché</option><option value="OutingBalance">Bilan de sortie</option><option value="Individual">Rapport individuel</option><option value="Manager">Rapport du responsable</option></select></div></form>
+    <div><label for="Type">Type</label><select asp-for="Type" data-autosubmit><option value="">Tous</option><option value="MarketStudy">Étude de marché</option><option value="OutingBalance">Bilan de sortie</option><option value="Individual">Rapport individuel</option><option value="Manager">Rapport du responsable</option></select></div></form>
 @if (Model.Result.Items.Count == 0) { <div class="card">@Strings.T("common.empty")</div> }
 else
 {

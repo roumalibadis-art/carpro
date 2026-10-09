@@ -41,6 +41,7 @@
             @if (Can(Permissions.UserManage)) { <a href="/Admin/Users">@Strings.T("nav.users")</a> }
             @if (Can(Permissions.RoleManage)) { <a href="/Admin/Roles">@Strings.T("nav.roles")</a> }
             @if (Can(Permissions.AuditView)) { <a href="/Admin/Audit">@Strings.T("nav.audit")</a> }
+            @if (Can(Permissions.DataPurge)) { <a href="/Admin/Data">Données</a> }
         </nav>
         <form method="post" asp-page="/Account/Logout" class="logout">
             <a href="/Notifications" title="Notifications" aria-label="Notifications">🔔@if (unread > 0) { <span class="badge bad">@unread</span> }</a>

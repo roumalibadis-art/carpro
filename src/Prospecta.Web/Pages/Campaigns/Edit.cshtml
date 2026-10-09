@@ -5,21 +5,21 @@
 @if (!ModelState.IsValid) { <div class="alert err" role="alert"><ul>@foreach (var e in ModelState.Values.SelectMany(v => v.Errors)) { <li>@e.ErrorMessage</li> }</ul></div> }
 <form method="post" class="card">
     <div class="filters">
-        <div><label>Nom *</label><input asp-for="Input.Name" required maxlength="200" /></div>
-        <div><label>Début *</label><input asp-for="Input.StartDate" type="date" required /></div>
-        <div><label>Fin *</label><input asp-for="Input.EndDate" type="date" required /></div>
-        <div><label>Responsable</label><select asp-for="Input.ManagerUserId" asp-items="Model.Managers"></select></div>
-        <div><label>Secteur d'activité</label><select asp-for="Input.CategoryId" asp-items="Model.Categories"></select></div>
+        <div><label for="Input_Name">Nom *</label><input asp-for="Input.Name" required maxlength="200" /></div>
+        <div><label for="Input_StartDate">Début *</label><input asp-for="Input.StartDate" type="date" required /></div>
+        <div><label for="Input_EndDate">Fin *</label><input asp-for="Input.EndDate" type="date" required /></div>
+        <div><label for="Input_ManagerUserId">Responsable</label><select asp-for="Input.ManagerUserId" asp-items="Model.Managers"></select></div>
+        <div><label for="Input_CategoryId">Secteur d'activité</label><select asp-for="Input.CategoryId" asp-items="Model.Categories"></select></div>
         <div data-geo-chain style="display:contents">
-            <div><label>Wilaya</label><select data-geo asp-for="Input.WilayaId" asp-items="Model.Wilayas"></select></div>
-            <div><label>Daïra</label><select data-geo data-placeholder="Toutes" asp-for="Input.DairaId" asp-items="Model.Dairas"></select></div>
-            <div><label>Commune</label><select data-geo data-placeholder="Toutes" asp-for="Input.CommuneId" asp-items="Model.Communes"></select></div>
+            <div><label for="Input_WilayaId">Wilaya</label><select data-geo asp-for="Input.WilayaId" asp-items="Model.Wilayas"></select></div>
+            <div><label for="Input_DairaId">Daïra</label><select data-geo data-placeholder="Toutes" asp-for="Input.DairaId" asp-items="Model.Dairas"></select></div>
+            <div><label for="Input_CommuneId">Commune</label><select data-geo data-placeholder="Toutes" asp-for="Input.CommuneId" asp-items="Model.Communes"></select></div>
         </div>
-        <div><label>Objectif de visites</label><input asp-for="Input.VisitTarget" type="number" min="0" /></div>
-        <div><label>Budget prévisionnel (DA)</label><input asp-for="Input.Budget" type="number" min="0" step="0.01" /></div>
+        <div><label for="Input_VisitTarget">Objectif de visites</label><input asp-for="Input.VisitTarget" type="number" min="0" /></div>
+        <div><label for="Input_Budget">Budget prévisionnel (DA)</label><input asp-for="Input.Budget" type="number" min="0" step="0.01" /></div>
     </div>
-    <p><label>Objectif de la campagne</label><textarea asp-for="Input.Objective" maxlength="2000"></textarea></p>
-    <p><label>Commerciaux participants (Ctrl/Cmd pour en choisir plusieurs)</label><select asp-for="Input.ParticipantIds" asp-items="Model.Team" multiple size="6"></select></p>
-    <p><label>Notes</label><textarea asp-for="Input.Notes" maxlength="4000"></textarea></p>
+    <p><label for="Input_Objective">Objectif de la campagne</label><textarea asp-for="Input.Objective" maxlength="2000"></textarea></p>
+    <p><label for="Input_ParticipantIds">Commerciaux participants (Ctrl/Cmd pour en choisir plusieurs)</label><select asp-for="Input.ParticipantIds" asp-items="Model.Team" multiple size="6"></select></p>
+    <p><label for="Input_Notes">Notes</label><textarea asp-for="Input.Notes" maxlength="4000"></textarea></p>
     <div class="actions"><button type="submit">@Strings.T("action.save")</button><a class="btn secondary" href="/Campaigns">@Strings.T("action.cancel")</a></div>
 </form>

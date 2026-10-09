@@ -26,6 +26,7 @@ public static class Permissions
     public const string ReportCreate = "Report.Create";           // own reports and indicators
     public const string ReportViewTeam = "Report.ViewTeam";       // reports shared by one's team + team comparison (report D)
     public const string ReportViewAll = "Report.ViewAll";
+    public const string DataPurge = "Data.Purge";                 // irreversible removal of deleted records (retention / erasure requests)
     public const string CollectionRun = "Collection.Run";         // free collection connectors, URL inspection, refresh checks         // reports shared by anyone in the organization
 
     public static readonly IReadOnlyList<string> All =
@@ -33,7 +34,7 @@ public static class Permissions
         BusinessView, BusinessViewAll, BusinessCreate, BusinessEdit, BusinessDelete, BusinessVerify, BusinessAssign,
         BusinessImport, BusinessExport, DuplicateManage, ReferenceManage, UserManage, RoleManage, AuditView,
         CampaignManage, OutingManage, ActivityRecord, ActivityViewAll,
-        ReportCreate, ReportViewTeam, ReportViewAll, CollectionRun,
+        ReportCreate, ReportViewTeam, ReportViewAll, CollectionRun, DataPurge,
     ];
 }
 
@@ -69,4 +70,6 @@ public static class PermissionIntroductions
     public static readonly string[] Phase3 = [Permissions.ReportCreate, Permissions.ReportViewTeam, Permissions.ReportViewAll];
     public const string Phase4Flag = "seed:permissions:phase4";
     public static readonly string[] Phase4 = [Permissions.CollectionRun];
+    public const string Phase5Flag = "seed:permissions:phase5";
+    public static readonly string[] Phase5 = [Permissions.DataPurge];
 }

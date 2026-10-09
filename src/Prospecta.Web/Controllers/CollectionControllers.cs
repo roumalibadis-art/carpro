@@ -1,23 +1,25 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Prospecta.Application.Security;
 using Prospecta.Application.Businesses;
 using Prospecta.Application.Collection;
 using Prospecta.Domain.Common;
 
 namespace Prospecta.Web.Controllers;
 
-[ApiController, Route("api/v1/collection")]
+[ApiController, Route("api/v1/collection"), Authorize]
 public sealed class CollectionController(CollectionService service, UrlInspectionService urls, BusinessService businesses) : ControllerBase
 {
-    [HttpGet("connectors")]
+    [Authorize(Policy = Permissions.CollectionRun), HttpGet("connectors")]
     public async Task<IActionResult> Connectors(CancellationToken ct) => Ok(await service.ConnectorsAsync(ct));
 
-    [HttpPost("search")]
+    [Authorize(Policy = Permissions.CollectionRun), HttpPost("search")]
     public async Task<IActionResult> Search(CollectionRequest r, CancellationToken ct) => Ok(await service.SearchAsync(r, null, ct));
 
-    [HttpGet("jobs")]
+    [Authorize(Policy = Permissions.CollectionRun), HttpGet("jobs")]
     public async Task<IActionResult> Jobs(int page = 1, int pageSize = 25, CancellationToken ct = default) => Ok(await service.ListJobsAsync(page, pageSize, ct));
 
-    [HttpGet("jobs/{id:guid}")]
+    [Authorize(Policy = Permissions.CollectionRun), HttpGet("jobs/{id:guid}")]
     public async Task<IActionResult> Job(Guid id, CollectionResultStatus? status, int page = 1, int pageSize = 50, CancellationToken ct = default)
     {
         var (job, results) = await service.GetAsync(id, status, page, pageSize, ct);
@@ -27,21 +29,21 @@ public sealed class CollectionController(CollectionService service, UrlInspectio
     public sealed record ImportRequest(Guid[]? ResultIds, bool IncludeDuplicates);
     public sealed record RejectRequest(Guid[] ResultIds);
 
-    [HttpPost("jobs/{id:guid}/import")]
+    [Authorize(Policy = Permissions.CollectionRun), HttpPost("jobs/{id:guid}/import")]
     public async Task<IActionResult> Import(Guid id, ImportRequest r, CancellationToken ct)
     {
         var (imported, skipped) = await service.ImportAsync(id, r.ResultIds, r.IncludeDuplicates, ct);
         return Ok(new { imported, skipped });
     }
 
-    [HttpPost("jobs/{id:guid}/reject")]
+    [Authorize(Policy = Permissions.CollectionRun), HttpPost("jobs/{id:guid}/reject")]
     public async Task<IActionResult> Reject(Guid id, RejectRequest r, CancellationToken ct)
     {
         await service.RejectAsync(id, r.ResultIds, ct);
         return NoContent();
     }
 
-    [HttpPost("jobs/{id:guid}/retry")]
+    [Authorize(Policy = Permissions.CollectionRun), HttpPost("jobs/{id:guid}/retry")]
     public async Task<IActionResult> Retry(Guid id, CancellationToken ct) => Ok(await service.RetryAsync(id, ct));
 
     public sealed record InspectRequest(string Url);

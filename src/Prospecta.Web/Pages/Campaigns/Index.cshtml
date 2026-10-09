@@ -4,8 +4,8 @@
 <div class="row" style="justify-content:space-between;align-items:center"><h1>Campagnes de prospection</h1>
     @if (User.HasClaim(Permissions.ClaimType, Permissions.CampaignManage)) { <a class="btn" href="/Campaigns/Edit">+ Nouvelle campagne</a> }</div>
 <form method="get" class="card row" style="align-items:end">
-    <div><label>Recherche</label><input asp-for="Search" type="search" /></div>
-    <div><label>État</label><select asp-for="Status" asp-items="Html.GetEnumSelectList<CampaignStatus>()"><option value="">Tous</option></select></div>
+    <div><label for="Search">Recherche</label><input asp-for="Search" type="search" /></div>
+    <div><label for="Status">État</label><select asp-for="Status" asp-items="Html.GetEnumSelectList<CampaignStatus>()"><option value="">Tous</option></select></div>
     <button type="submit">Filtrer</button><a class="btn secondary" href="/Campaigns">Réinitialiser</a>
 </form>
 @if (Model.Result.Items.Count == 0) { <div class="card">@Strings.T("common.empty")</div> }

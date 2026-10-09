@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Prospecta.Application.Security;
 using Prospecta.Application.Businesses;
 using Prospecta.Application.Prospecting;
 using Prospecta.Domain.Common;
@@ -14,14 +16,14 @@ public sealed class CampaignsController(CampaignService service) : ControllerBas
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> Get(Guid id, CancellationToken ct) => Ok(await service.GetAsync(id, ct));
 
-    [HttpPost]
+    [Authorize(Policy = Permissions.CampaignManage), HttpPost]
     public async Task<IActionResult> Create(CampaignInput input, CancellationToken ct)
     {
         var id = await service.SaveAsync(null, input, ct);
         return CreatedAtAction(nameof(Get), new { id }, await service.GetAsync(id, ct));
     }
 
-    [HttpPut("{id:guid}")]
+    [Authorize(Policy = Permissions.CampaignManage), HttpPut("{id:guid}")]
     public async Task<IActionResult> Update(Guid id, CampaignInput input, CancellationToken ct)
     {
         await service.SaveAsync(id, input, ct);
@@ -30,7 +32,7 @@ public sealed class CampaignsController(CampaignService service) : ControllerBas
 
     public sealed record StatusRequest(CampaignStatus Status);
 
-    [HttpPut("{id:guid}/status")]
+    [Authorize(Policy = Permissions.CampaignManage), HttpPut("{id:guid}/status")]
     public async Task<IActionResult> SetStatus(Guid id, StatusRequest r, CancellationToken ct)
     {
         await service.SetStatusAsync(id, r.Status, ct);
@@ -42,15 +44,15 @@ public sealed class CampaignsController(CampaignService service) : ControllerBas
 
     public sealed record AddTargetsRequest(Guid[] BusinessIds, Guid? AssigneeId);
 
-    [HttpPost("{id:guid}/targets")]
+    [Authorize(Policy = Permissions.CampaignManage), HttpPost("{id:guid}/targets")]
     public async Task<IActionResult> AddTargets(Guid id, AddTargetsRequest r, CancellationToken ct) => Ok(new { changed = await service.AddTargetsAsync(id, r.BusinessIds, r.AssigneeId, ct) });
 
     public sealed record AddByFilterRequest(BusinessFilter Filter, Guid? AssigneeId);
 
-    [HttpPost("{id:guid}/targets/by-filter")]
+    [Authorize(Policy = Permissions.CampaignManage), HttpPost("{id:guid}/targets/by-filter")]
     public async Task<IActionResult> AddByFilter(Guid id, AddByFilterRequest r, CancellationToken ct) => Ok(new { changed = await service.AddTargetsByFilterAsync(id, r.Filter, r.AssigneeId, ct) });
 
-    [HttpDelete("{id:guid}/targets/{businessId:guid}")]
+    [Authorize(Policy = Permissions.CampaignManage), HttpDelete("{id:guid}/targets/{businessId:guid}")]
     public async Task<IActionResult> RemoveTarget(Guid id, Guid businessId, CancellationToken ct)
     {
         await service.RemoveTargetAsync(id, businessId, ct);
@@ -67,14 +69,14 @@ public sealed class OutingsController(OutingService service) : ControllerBase
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> Get(Guid id, CancellationToken ct) => Ok(await service.GetAsync(id, ct));
 
-    [HttpPost]
+    [Authorize(Policy = Permissions.OutingManage), HttpPost]
     public async Task<IActionResult> Create(OutingInput input, CancellationToken ct)
     {
         var id = await service.SaveAsync(null, input, ct);
         return CreatedAtAction(nameof(Get), new { id }, await service.GetAsync(id, ct));
     }
 
-    [HttpPut("{id:guid}")]
+    [Authorize(Policy = Permissions.OutingManage), HttpPut("{id:guid}")]
     public async Task<IActionResult> Update(Guid id, OutingInput input, CancellationToken ct)
     {
         await service.SaveAsync(id, input, ct);
@@ -83,7 +85,7 @@ public sealed class OutingsController(OutingService service) : ControllerBase
 
     public sealed record CloseRequest(OutingStatus Status, string? Observations);
 
-    [HttpPost("{id:guid}/close")]
+    [Authorize(Policy = Permissions.OutingManage), HttpPost("{id:guid}/close")]
     public async Task<IActionResult> Close(Guid id, CloseRequest r, CancellationToken ct)
     {
         await service.CloseAsync(id, r.Status, r.Observations, ct);
@@ -101,7 +103,7 @@ public sealed class OutingsController(OutingService service) : ControllerBase
     }
 }
 
-[ApiController, Route("api/v1/visits")]
+[ApiController, Route("api/v1/visits"), Authorize(Policy = Permissions.ActivityRecord)]
 public sealed class VisitsController(VisitService service) : ControllerBase
 {
     [HttpGet]
@@ -138,7 +140,7 @@ public sealed class VisitsController(VisitService service) : ControllerBase
     public async Task<IActionResult> Postpone(Guid id, PostponeRequest r, CancellationToken ct) => Ok(await service.PostponeAsync(id, r.NewScheduledAt, ct));
 }
 
-[ApiController, Route("api/v1/followups")]
+[ApiController, Route("api/v1/followups"), Authorize(Policy = Permissions.ActivityRecord)]
 public sealed class FollowUpsController(FollowUpService service) : ControllerBase
 {
     [HttpGet]

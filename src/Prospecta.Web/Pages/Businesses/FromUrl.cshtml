@@ -4,7 +4,7 @@
 <h1>Ajouter depuis une URL publique</h1>
 <p class="muted">Collez le site web de l'entreprise ou un lien de lieu Google Maps / OpenStreetMap copié depuis votre navigateur. Les liens de carte sont lus localement (aucune requête vers Google) ; les sites sont lus poliment (robots.txt respecté, aucune protection contournée). Vous relisez tout avant d'enregistrer.</p>
 @if (!ModelState.IsValid) { <div class="alert err" role="alert"><ul>@foreach (var e in ModelState.Values.SelectMany(v => v.Errors)) { <li>@e.ErrorMessage</li> }</ul></div> }
-<form method="post" class="card row" style="align-items:end"><div style="flex:1"><label>URL publique</label><input asp-for="PageUrl" type="url" required maxlength="500" style="width:100%" placeholder="https://www.exemple.dz ou https://www.google.com/maps/place/…@@36.7,3.2,17z" /></div>
+<form method="post" class="card row" style="align-items:end"><div style="flex:1"><label for="PageUrl">URL publique</label><input asp-for="PageUrl" type="url" required maxlength="500" style="width:100%" placeholder="https://www.exemple.dz ou https://www.google.com/maps/place/…@@36.7,3.2,17z" /></div>
     <button type="submit" asp-page-handler="Inspect">Analyser</button></form>
 @if (Model.Result is not null)
 {
@@ -12,19 +12,19 @@
     <form method="post" class="card"><input type="hidden" asp-for="Kind" /><input type="hidden" asp-for="Input.SourceUrl" /><input type="hidden" asp-for="Input.GoogleMapsUrl" />
         <h2>Vérifier et compléter</h2>
         <div class="filters">
-            <div><label>Nom commercial *</label><input asp-for="Input.Name" required maxlength="200" /></div>
-            <div><label>Activité</label><select asp-for="Input.CategoryId" asp-items="Model.Categories"></select></div>
+            <div><label for="Input_Name">Nom commercial *</label><input asp-for="Input.Name" required maxlength="200" /></div>
+            <div><label for="Input_CategoryId">Activité</label><select asp-for="Input.CategoryId" asp-items="Model.Categories"></select></div>
             <div data-geo-chain style="display:contents">
-                <div><label>Wilaya</label><select data-geo asp-for="Input.WilayaId" asp-items="Model.Wilayas"></select></div>
-                <div><label>Daïra</label><select data-geo data-placeholder="Non indiquée" asp-for="Input.DairaId" asp-items="Model.Dairas"></select></div>
-                <div><label>Commune</label><select data-geo data-placeholder="Non indiquée" asp-for="Input.CommuneId" asp-items="Model.Communes"></select></div>
+                <div><label for="Input_WilayaId">Wilaya</label><select data-geo asp-for="Input.WilayaId" asp-items="Model.Wilayas"></select></div>
+                <div><label for="Input_DairaId">Daïra</label><select data-geo data-placeholder="Non indiquée" asp-for="Input.DairaId" asp-items="Model.Dairas"></select></div>
+                <div><label for="Input_CommuneId">Commune</label><select data-geo data-placeholder="Non indiquée" asp-for="Input.CommuneId" asp-items="Model.Communes"></select></div>
             </div>
-            <div><label>Adresse</label><input asp-for="Input.Address" maxlength="300" /></div>
-            <div><label>Téléphone</label><input asp-for="Input.Phone" type="tel" /></div>
-            <div><label>Site web</label><input asp-for="Input.Website" type="url" /></div>
-            <div><label>Latitude</label><input asp-for="Input.Latitude" inputmode="decimal" /></div><div><label>Longitude</label><input asp-for="Input.Longitude" inputmode="decimal" /></div>
+            <div><label for="Input_Address">Adresse</label><input asp-for="Input.Address" maxlength="300" /></div>
+            <div><label for="Input_Phone">Téléphone</label><input asp-for="Input.Phone" type="tel" /></div>
+            <div><label for="Input_Website">Site web</label><input asp-for="Input.Website" type="url" /></div>
+            <div><label for="Input_Latitude">Latitude</label><input asp-for="Input.Latitude" inputmode="decimal" /></div><div><label for="Input_Longitude">Longitude</label><input asp-for="Input.Longitude" inputmode="decimal" /></div>
         </div>
-        <p><label>Description</label><textarea asp-for="Input.Description" maxlength="2000"></textarea></p>
+        <p><label for="Input_Description">Description</label><textarea asp-for="Input.Description" maxlength="2000"></textarea></p>
         <div class="actions"><button type="submit" asp-page-handler="Create">Créer la fiche</button><a class="btn secondary" href="/Businesses">@Strings.T("action.cancel")</a></div>
     </form>
 }

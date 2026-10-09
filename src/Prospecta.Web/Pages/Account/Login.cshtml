@@ -11,8 +11,8 @@
     @if (!ModelState.IsValid) { <div class="alert err" role="alert">@Html.ValidationSummary(true)</div> }
     <form method="post">
         <input type="hidden" asp-for="ReturnUrl" />
-        <p><label asp-for="Email">Adresse e-mail</label><input asp-for="Email" type="email" autocomplete="username" required style="width:100%" /></p>
-        <p><label asp-for="Password">Mot de passe</label><input asp-for="Password" type="password" autocomplete="current-password" required style="width:100%" /></p>
+        <p><label for="Email" asp-for="Email">Adresse e-mail</label><input asp-for="Email" type="email" autocomplete="username" required style="width:100%" /></p>
+        <p><label for="Password" asp-for="Password">Mot de passe</label><input asp-for="Password" type="password" autocomplete="current-password" required style="width:100%" /></p>
         <button type="submit" style="width:100%">Se connecter</button>
     </form>
 </main>

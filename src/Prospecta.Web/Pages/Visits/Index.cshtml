@@ -3,9 +3,9 @@
 @{ ViewData["Title"] = "Visites et activités"; ViewData["PageKey"] = "Filter.Page"; }
 <div class="row" style="justify-content:space-between;align-items:center"><h1>Visites et activités</h1><a class="btn" href="/Visits/New">+ Planifier / enregistrer</a></div>
 <form method="get" class="card"><div class="filters">
-    <div><label>Du</label><input asp-for="Filter.From" type="date" /></div><div><label>Au</label><input asp-for="Filter.To" type="date" /></div>
-    <div><label>État</label><select asp-for="Filter.Status" asp-items="Html.GetEnumSelectList<VisitStatus>()"><option value="">Tous</option></select></div>
-    @if (Model.Users.Count > 0) { <div><label>Utilisateur</label><select asp-for="Filter.UserId" asp-items="Model.Users"></select></div> }
+    <div><label for="Filter_From">Du</label><input asp-for="Filter.From" type="date" /></div><div><label for="Filter_To">Au</label><input asp-for="Filter.To" type="date" /></div>
+    <div><label for="Filter_Status">État</label><select asp-for="Filter.Status" asp-items="Html.GetEnumSelectList<VisitStatus>()"><option value="">Tous</option></select></div>
+    @if (Model.Users.Count > 0) { <div><label for="Filter_UserId">Utilisateur</label><select asp-for="Filter.UserId" asp-items="Model.Users"></select></div> }
 </div><div class="actions"><button type="submit">Filtrer</button><a class="btn secondary" href="/Visits">Réinitialiser</a></div></form>
 @if (Model.Result.Items.Count == 0) { <div class="card">@Strings.T("common.empty")</div> }
 else

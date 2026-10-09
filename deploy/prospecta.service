@@ -1,0 +1,28 @@
+# /etc/systemd/system/prospecta.service  — Linux host, .NET 8 ASP.NET Core runtime installed (apt install aspnetcore-runtime-8.0)
+[Unit]
+Description=Prospecta (census, prospecting and reporting)
+After=network-online.target mysql.service
+Wants=network-online.target
+
+[Service]
+WorkingDirectory=/opt/prospecta
+ExecStart=/usr/bin/dotnet /opt/prospecta/Prospecta.Web.dll
+Restart=on-failure
+RestartSec=5
+User=prospecta
+Group=prospecta
+EnvironmentFile=/etc/prospecta/prospecta.env
+Environment=ASPNETCORE_ENVIRONMENT=Production
+Environment=ASPNETCORE_URLS=http://127.0.0.1:5000
+Environment=DOTNET_PRINT_TELEMETRY_MESSAGE=false
+# Hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/prospecta/logs
+CapabilityBoundingSet=
+SystemCallArchitectures=native
+
+[Install]
+WantedBy=multi-user.target

@@ -13,8 +13,8 @@
         <div class="filters">
         @foreach (var (key, (label, _)) in ImportService.Fields)
         {
-            <div><label>@label</label>
-                <select name="map_@key"><option value="">— ignorer —</option>
+            <div><label for="map__key">@label</label>
+                <select id="map__key" name="map_@key"><option value="">— ignorer —</option>
                 @foreach (var h in b.Headers) { <option value="@h" selected="@(b.Mapping.GetValueOrDefault(key) == h)">@h</option> }
                 </select></div>
         }
@@ -33,7 +33,7 @@
         <div class="stat"><b>@b.ImportedRows</b><span>entreprises importées</span></div>
     </div>
     <form method="get" class="card row" style="align-items:end">
-        <div><label>Afficher</label><select asp-for="Status" data-autosubmit><option value="">Toutes les lignes</option><option value="Valid">Valides</option><option value="Invalid">Invalides</option><option value="PotentialDuplicate">Doublons</option><option value="Imported">Importées</option></select></div>
+        <div><label for="Status">Afficher</label><select asp-for="Status" data-autosubmit><option value="">Toutes les lignes</option><option value="Valid">Valides</option><option value="Invalid">Invalides</option><option value="PotentialDuplicate">Doublons</option><option value="Imported">Importées</option></select></div>
     </form>
 }
 

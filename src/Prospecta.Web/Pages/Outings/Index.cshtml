@@ -3,7 +3,7 @@
 @{ ViewData["Title"] = "Sorties commerciales"; }
 <div class="row" style="justify-content:space-between;align-items:center"><h1>Sorties commerciales</h1>
     @if (User.HasClaim(Permissions.ClaimType, Permissions.OutingManage)) { <a class="btn" href="/Outings/Edit">+ Nouvelle sortie</a> }</div>
-<form method="get" class="card row" style="align-items:end"><div><label>Du</label><input asp-for="From" type="date" /></div><div><label>Au</label><input asp-for="To" type="date" /></div><button type="submit">Filtrer</button><a class="btn secondary" href="/Outings">Réinitialiser</a></form>
+<form method="get" class="card row" style="align-items:end"><div><label for="From">Du</label><input asp-for="From" type="date" /></div><div><label for="To">Au</label><input asp-for="To" type="date" /></div><button type="submit">Filtrer</button><a class="btn secondary" href="/Outings">Réinitialiser</a></form>
 @if (Model.Result.Items.Count == 0) { <div class="card">@Strings.T("common.empty")</div> }
 else
 {

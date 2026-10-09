@@ -44,9 +44,11 @@ public sealed class BusinessService(IAppDbContext db, ICurrentUser user, IAuditS
             var term = TextNormalizer.Fold(f.Search);
             var digits = new string(f.Search.Where(char.IsDigit).ToArray());
             var phoneKey = AlgerianPhone.Normalize(f.Search) ?? (digits.Length >= 4 ? digits.TrimStart('0') : null);
-            q = q.Where(b => b.NormalizedName.Contains(term) || (b.Address != null && b.Address.Contains(f.Search.Trim())) ||
+            var hasTerm = term.Length > 0; // a search made only of symbols must not degrade into "match everything"
+            var raw = f.Search.Trim();
+            q = q.Where(b => (hasTerm && b.NormalizedName.Contains(term)) || (b.Address != null && b.Address.Contains(raw)) ||
                              (phoneKey != null && phoneKey.Length >= 3 && b.NormalizedPhone != null && b.NormalizedPhone.Contains(phoneKey)) ||
-                             (b.WebsiteHost != null && b.WebsiteHost.Contains(f.Search.Trim().ToLower())));
+                             (b.WebsiteHost != null && b.WebsiteHost.Contains(raw.ToLower())));
         }
 
         if (f.WilayaId is not null) q = q.Where(b => b.WilayaId == f.WilayaId);

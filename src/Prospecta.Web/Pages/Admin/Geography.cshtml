@@ -8,18 +8,18 @@
 @foreach (var g in Model.Items)
 {
     <tr>
-        <td data-label="Code"><form id="gf-@g.Id" method="post" asp-page-handler="Save"><input type="hidden" name="id" value="@g.Id" /></form><input form="gf-@g.Id" name="code" value="@g.Code" maxlength="20" size="6" /></td>
-        <td data-label="Nom"><input form="gf-@g.Id" name="name" value="@g.Name" maxlength="150" required /></td>
-        <td data-label="Actif"><input form="gf-@g.Id" type="checkbox" name="active" value="true" checked="@g.IsActive" /></td>
+        <td data-label="Code"><form id="gf-@g.Id" method="post" asp-page-handler="Save"><input type="hidden" name="id" value="@g.Id" /></form><input form="gf-@g.Id" name="code" value="@g.Code" maxlength="20" size="6" aria-label="Code de @g.Name" /></td>
+        <td data-label="Nom"><input form="gf-@g.Id" name="name" value="@g.Name" maxlength="150" required aria-label="Nom de @g.Name" /></td>
+        <td data-label="Actif"><input form="gf-@g.Id" type="checkbox" name="active" value="true" checked="@g.IsActive" aria-label="@g.Name actif" /></td>
         <td><button form="gf-@g.Id" type="submit" class="secondary">Enregistrer</button> @if (Model.ListLevel != GeoLevel.Quartier) { <a href="@Model.Child(g.Id)">Ouvrir ›</a> }</td></tr>
 }
 </tbody></table></div>
 @if (Model.Items.Count == 0) { <p class="muted">Aucun élément à ce niveau.</p> }
 <form method="post" asp-page-handler="Save" class="card row" style="align-items:end">
-    <div><label>Nouvelle @levelName — nom</label><input name="name" required maxlength="150" /></div><div><label>Code (facultatif)</label><input name="code" maxlength="20" size="6" /></div><button type="submit">Ajouter</button>
+    <div><label for="name">Nouvelle @levelName — nom</label><input id="name" name="name" required maxlength="150" /></div><div><label for="code">Code (facultatif)</label><input id="code" name="code" maxlength="20" size="6" /></div><button type="submit">Ajouter</button>
 </form>
 <form method="post" asp-page-handler="Import" enctype="multipart/form-data" class="card">
     <h2>Importer des daïras / communes / quartiers (CSV)</h2>
     <p class="muted">Colonnes : <code>wilaya;daira;commune</code> et, en option, <code>quartier</code>. La wilaya s'indique par son nom ou son code à 2 chiffres et doit déjà exister. Réimporter le même fichier ne crée aucun doublon. Utilisez la liste officielle de votre source (ONS / ANIREF). <a href="/Admin/Geography?handler=Template">Télécharger le modèle CSV</a>.</p>
-    <div class="row" style="align-items:end"><input type="file" name="file" accept=".csv" required /><button type="submit">Importer</button></div>
+    <div class="row" style="align-items:end"><input type="file" name="file" accept=".csv" required aria-label="Fichier CSV de géographie" /><button type="submit">Importer</button></div>
 </form>

@@ -6,7 +6,7 @@
 | 2 — Prospection (campagnes, affectations, sorties, visites, activités, relances, dépenses) | **Terminée** (voir rapport) |
 | 3 — Reporting & évaluation (rapports A–D, indicateurs, PDF/Excel, snapshots) | **Terminée** |
 | 4 — Collecte externe **gratuite et sans clé** (OpenStreetMap, URL publiques, modèle Excel) | **Terminée** (voir rapport) |
-| 5 — Finalisation (carte, mobile, tests E2E, sauvegarde/déploiement) | À faire |
+| 5 — Finalisation (carte, mobile, sécurité, E2E, sauvegarde/déploiement) | **Terminée** |
 
 ## Rapport de la phase 1
 **Terminé** : voir README « État ». **Partiel** : colonnes configurables (préférence navigateur), vues partagées (équipe) sans notion d'équipe hiérarchique (le champ `ManagerId` existe, utilisé en phase 2/3), i18n (couche de traduction en place, catalogue français uniquement ; pages non encore migrées en dur), pas de concurrence optimiste sur les fiches (historique conservé, dernier enregistrement gagne).
@@ -42,3 +42,16 @@ rapports A (étude de marché), B (bilan de sortie), C (individuel), D (responsa
 * Filtres « campagne » et « relance en retard » ajoutés à la liste des entreprises (restes de la phase 2).
 **Limites** : OpenStreetMap couvre inégalement l'Algérie (résultats toujours « à vérifier ») ; les daïras ne sont pas des limites OSM (recherche via leurs communes) ; **le serveur de collecte n'a pas pu être joint depuis l'environnement de développement** (accès réseau sortant restreint) : la logique est testée avec un faux serveur Overpass et un serveur HTTP local, pas contre l'instance publique réelle. À essayer une première fois depuis votre serveur.
 **Tests** : 101 unitaires ; 45 intégration sur SQLite et sur MySQL 8 réel (un vrai défaut de longueur de colonne n'a été vu que sur MySQL, corrigé).
+
+## Rapport de la phase 5 — finalisation
+**Terminé** :
+* **Carte interactive** (phase 4) et **optimisation mobile** : menu burger, tableaux en cartes, aucun débordement horizontal (vérifié sur 5 pages en 390 px).
+* **Audit de sécurité automatisé** (`SecurityAuditTests`) : balayage anonyme de toutes les routes API, balayage « commercial » des routes de gestion, jetons falsifiés, en-têtes et absence de fuite, injections inertes, XSS stocké encodé, sur-envoi ignoré, limitation de débit, purge des données ; politiques par permission ajoutées sur les contrôleurs (défense en profondeur) ; paquet SQLite natif vulnérable remplacé par une version corrigée ; `npm audit` : 0 vulnérabilité.
+* **Tests de bout en bout** (`e2e/`, Chromium réel) : 12 parcours fonctionnels (connexion, filtres géographiques, création, doublon, import du modèle, campagne → visite → relance, indicateurs, rapport → PDF/Excel, carte, états honnêtes des connecteurs, mobile) + **accessibilité axe-core WCAG 2 A/AA sur 18 pages : 0 violation sérieuse/critique** — 30/30, rejouable sur une base déjà utilisée.
+* **Sauvegarde / restauration** (`scripts/`) : sauvegarde cohérente, contrôle d'intégrité, SHA-256, rotation, GPG optionnel ; restauration refusant un fichier altéré ; vérification par restauration dans une base jetable — testés sur MySQL réel. **Mise à niveau** d'une base existante de la phase 1 à la phase 4 testée (données et droits conservés).
+* **Déploiement** : `dotnet publish` Release démarré en mode Production (refus de démarrer sans `Jwt__Secret`, Swagger fermé, CSP, HTTPS via proxy), unité systemd durcie, nginx + Let's Encrypt, fichier d'environnement modèle (`deploy/`, `docs/operations.md`).
+* **Conservation / correction / suppression** : purge définitive tracée (`Data.Purge`, *Admin › Données*), documentée.
+* Documentation : `README`, `CLAUDE.md`, `docs/{architecture,api,database,security,operations,roadmap}.md`.
+**Défauts trouvés et corrigés grâce à cette phase** : recherche « symboles » qui renvoyait tout ; limiteur qui bloquait l'affichage de la page de connexion ; redémarrage plantant (seeding non idempotent) ; 400 avant 403 sur les routes de gestion ; clé de quota trop longue pour MySQL ; libellés de formulaires non associés, contrastes et page d'erreur sans `lang`/`title`.
+**Résultats finaux** : 101 tests unitaires + 54 d'intégration (SQLite), les 54 aussi sur MySQL 8 réel, E2E 30/30 : tous verts.
+**Reste à votre charge / limites connues** : première exécution de la collecte OpenStreetMap contre l'instance publique (non joignable depuis l'environnement de développement) ; hébergement TLS, secrets et sauvegardes hors site ; rapports non planifiables automatiquement ; traduction arabe (couche prête, catalogue français seul) ; pas de concurrence optimiste sur les fiches ; pas de stockage de pièces justificatives (référence texte).

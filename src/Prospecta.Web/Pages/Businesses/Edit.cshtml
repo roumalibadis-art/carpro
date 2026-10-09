@@ -6,28 +6,28 @@
 <p class="muted">Un champ laissé vide reste « non indiqué » : rien n'est inventé. Les valeurs <span class="o-Confirmed">confirmées</span> ne peuvent être modifiées que par une personne habilitée à vérifier.</p>
 <form method="post" class="card">
     <div class="filters">
-        <div><label>Nom commercial *</label><input asp-for="Input.Name" required maxlength="200" /></div>
-        <div><label>Nom légal (si public)</label><input asp-for="Input.LegalName" maxlength="200" /></div>
-        <div><label>Priorité</label><select asp-for="Input.Priority" asp-items="Html.GetEnumSelectList<Priority>()"></select></div>
-        <div><label>Activité</label><select data-category-root="sub" asp-for="Input.CategoryId" asp-items="Model.Categories"></select></div>
-        <div><label>Sous-activité</label><select id="sub" asp-for="Input.SubCategoryId" asp-items="Model.SubCategories" data-placeholder="Non indiquée"></select></div>
+        <div><label for="Input_Name">Nom commercial *</label><input asp-for="Input.Name" required maxlength="200" /></div>
+        <div><label for="Input_LegalName">Nom légal (si public)</label><input asp-for="Input.LegalName" maxlength="200" /></div>
+        <div><label for="Input_Priority">Priorité</label><select asp-for="Input.Priority" asp-items="Html.GetEnumSelectList<Priority>()"></select></div>
+        <div><label for="Input_CategoryId">Activité</label><select data-category-root="sub" asp-for="Input.CategoryId" asp-items="Model.Categories"></select></div>
+        <div><label for="sub">Sous-activité</label><select id="sub" asp-for="Input.SubCategoryId" asp-items="Model.SubCategories" data-placeholder="Non indiquée"></select></div>
         <div data-geo-chain style="display:contents">
-            <div><label>Wilaya</label><select data-geo asp-for="Input.WilayaId" asp-items="Model.Wilayas"></select></div>
-            <div><label>Daïra</label><select data-geo data-placeholder="Non indiquée" asp-for="Input.DairaId" asp-items="Model.Dairas"></select></div>
-            <div><label>Commune</label><select data-geo data-placeholder="Non indiquée" asp-for="Input.CommuneId" asp-items="Model.Communes"></select></div>
-            <div><label>Quartier / secteur</label><select data-geo data-placeholder="Non indiqué" asp-for="Input.DistrictId" asp-items="Model.Districts"></select></div>
+            <div><label for="Input_WilayaId">Wilaya</label><select data-geo asp-for="Input.WilayaId" asp-items="Model.Wilayas"></select></div>
+            <div><label for="Input_DairaId">Daïra</label><select data-geo data-placeholder="Non indiquée" asp-for="Input.DairaId" asp-items="Model.Dairas"></select></div>
+            <div><label for="Input_CommuneId">Commune</label><select data-geo data-placeholder="Non indiquée" asp-for="Input.CommuneId" asp-items="Model.Communes"></select></div>
+            <div><label for="Input_DistrictId">Quartier / secteur</label><select data-geo data-placeholder="Non indiqué" asp-for="Input.DistrictId" asp-items="Model.Districts"></select></div>
         </div>
-        <div><label>Adresse</label><input asp-for="Input.Address" maxlength="300" /></div>
-        <div><label>Latitude</label><input asp-for="Input.Latitude" inputmode="decimal" /></div>
-        <div><label>Longitude</label><input asp-for="Input.Longitude" inputmode="decimal" /></div>
-        <div><label>Plus Code</label><input asp-for="Input.PlusCode" maxlength="30" /></div>
-        <div><label>Téléphone professionnel public</label><input asp-for="Input.Phone" type="tel" placeholder="0555 12 34 56" /></div>
-        <div><label>Site web</label><input asp-for="Input.Website" type="url" maxlength="300" placeholder="https://" /></div>
-        <div><label>URL fiche Google Maps (collez le lien relevé à la main)</label><input asp-for="Input.GoogleMapsUrl" id="gmaps" type="url" maxlength="500" /><button type="button" class="secondary" id="gmaps-extract">Extraire les coordonnées</button><span id="gmaps-msg" class="muted" role="status"></span></div>
-        <div><label>URL de la page publique source</label><input asp-for="Input.SourceUrl" type="url" maxlength="500" /></div>
+        <div><label for="Input_Address">Adresse</label><input asp-for="Input.Address" maxlength="300" /></div>
+        <div><label for="Input_Latitude">Latitude</label><input asp-for="Input.Latitude" inputmode="decimal" /></div>
+        <div><label for="Input_Longitude">Longitude</label><input asp-for="Input.Longitude" inputmode="decimal" /></div>
+        <div><label for="Input_PlusCode">Plus Code</label><input asp-for="Input.PlusCode" maxlength="30" /></div>
+        <div><label for="Input_Phone">Téléphone professionnel public</label><input asp-for="Input.Phone" type="tel" placeholder="0555 12 34 56" /></div>
+        <div><label for="Input_Website">Site web</label><input asp-for="Input.Website" type="url" maxlength="300" placeholder="https://" /></div>
+        <div><label for="gmaps">URL fiche Google Maps (collez le lien relevé à la main)</label><input asp-for="Input.GoogleMapsUrl" id="gmaps" type="url" maxlength="500" /><button type="button" class="secondary" id="gmaps-extract">Extraire les coordonnées</button><span id="gmaps-msg" class="muted" role="status"></span></div>
+        <div><label for="Input_SourceUrl">URL de la page publique source</label><input asp-for="Input.SourceUrl" type="url" maxlength="500" /></div>
     </div>
-    <p><label>Description</label><textarea asp-for="Input.Description" maxlength="2000"></textarea></p>
-    <p><label>Commentaires internes</label><textarea asp-for="Input.InternalNotes" maxlength="4000"></textarea></p>
+    <p><label for="Input_Description">Description</label><textarea asp-for="Input.Description" maxlength="2000"></textarea></p>
+    <p><label for="Input_InternalNotes">Commentaires internes</label><textarea asp-for="Input.InternalNotes" maxlength="4000"></textarea></p>
     @if (Model.Origins.Count > 0)
     {
         <p class="muted">Champs confirmés : @string.Join(", ", Model.Origins.Where(o => o.Value == FieldOrigin.Confirmed).Select(o => o.Key))</p>

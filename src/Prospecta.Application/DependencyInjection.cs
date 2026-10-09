@@ -35,6 +35,7 @@ public static class DependencyInjection
         services.AddScoped<UrlInspectionService>();
         services.AddScoped<RefreshService>();
         services.AddScoped<TemplateService>();
+        services.AddScoped<DataRetentionService>();
         services.AddScoped<TeamScope>();
         services.AddScoped<IndicatorService>();
         services.AddScoped<ReportBuilders>();

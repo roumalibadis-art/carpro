@@ -17,7 +17,7 @@
     @if (d.CanManage && d.Status == OutingStatus.Planned)
     {
         <form method="post" asp-page-handler="Close" class="row" style="align-items:end" data-confirm="Clôturer cette sortie ?">
-            <div><label>Observations de clôture</label><input name="observations" maxlength="1000" /></div>
+            <div><label for="observations">Observations de clôture</label><input id="observations" name="observations" maxlength="1000" /></div>
             <select name="status"><option value="Done">Réalisée</option><option value="Cancelled">Annulée</option></select><button type="submit">Clôturer</button></form>
     }
 </section>
@@ -40,9 +40,9 @@ else {
 @if (d.Status != OutingStatus.Cancelled)
 {
     <form method="post" asp-page-handler="Expense" class="card"><h3>Ajouter une dépense</h3><div class="filters">
-        <div><label>Type</label><select name="kind"><option value="Actual">Réelle</option>@if (d.CanManage) { <option value="Planned">Prévisionnelle</option> }</select></div>
-        <div><label>Catégorie</label><select name="category"><option value="Transport">Transport</option><option value="Marketing">Supports marketing</option><option value="Other">Autres frais</option></select></div>
-        <div><label>Montant (DA)</label><input name="amount" type="number" min="0.01" step="0.01" required /></div><div><label>Date</label><input name="date" type="date" required value="@i.Date.ToString("yyyy-MM-dd")" /></div>
-        <div><label>Description</label><input name="description" maxlength="500" /></div><div><label>Référence du justificatif</label><input name="receipt" maxlength="200" /></div></div>
+        <div><label for="kind">Type</label><select id="kind" name="kind"><option value="Actual">Réelle</option>@if (d.CanManage) { <option value="Planned">Prévisionnelle</option> }</select></div>
+        <div><label for="category">Catégorie</label><select id="category" name="category"><option value="Transport">Transport</option><option value="Marketing">Supports marketing</option><option value="Other">Autres frais</option></select></div>
+        <div><label for="amount">Montant (DA)</label><input id="amount" name="amount" type="number" min="0.01" step="0.01" required /></div><div><label for="date">Date</label><input id="date" name="date" type="date" required value="@i.Date.ToString("yyyy-MM-dd")" /></div>
+        <div><label for="description">Description</label><input id="description" name="description" maxlength="500" /></div><div><label for="receipt">Référence du justificatif</label><input id="receipt" name="receipt" maxlength="200" /></div></div>
         <div class="actions"><button type="submit">Ajouter</button></div></form>
 }

@@ -9,7 +9,7 @@
 {
     <form method="post" asp-page-handler="Retry" class="card"><p>La recherche n'a pas abouti. Vous pouvez la relancer avec les mêmes paramètres : les entreprises déjà importées ne seront pas dupliquées.</p><button type="submit">Relancer la recherche</button></form>
 }
-<form method="get" class="card row" style="align-items:end"><div><label>Afficher</label><select asp-for="Status" data-autosubmit><option value="">Tous</option><option value="New">Nouvelles</option><option value="PotentialDuplicate">Doublons probables</option><option value="AlreadyImported">Déjà importées</option><option value="Imported">Importées</option><option value="Rejected">Écartées</option></select></div></form>
+<form method="get" class="card row" style="align-items:end"><div><label for="Status">Afficher</label><select asp-for="Status" data-autosubmit><option value="">Tous</option><option value="New">Nouvelles</option><option value="PotentialDuplicate">Doublons probables</option><option value="AlreadyImported">Déjà importées</option><option value="Imported">Importées</option><option value="Rejected">Écartées</option></select></div></form>
 <form method="post" id="results">
     @if (Model.Results.Items.Count == 0) { <div class="card">@Strings.T("common.empty")</div> }
     else

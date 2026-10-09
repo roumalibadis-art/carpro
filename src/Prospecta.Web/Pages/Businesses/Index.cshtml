@@ -16,35 +16,35 @@
 
 <form method="get" class="card">
     <div class="filters">
-        <div><label>Recherche (nom, adresse, téléphone, site)</label><input asp-for="Filter.Search" type="search" /></div>
+        <div><label for="Filter_Search">Recherche (nom, adresse, téléphone, site)</label><input asp-for="Filter.Search" type="search" /></div>
         <div data-geo-chain style="display:contents">
-            <div><label>Wilaya</label><select data-geo asp-for="Filter.WilayaId" asp-items="Model.Wilayas"></select></div>
-            <div><label>Daïra</label><select data-geo data-placeholder="Toutes" asp-for="Filter.DairaId" asp-items="Model.Dairas"></select></div>
-            <div><label>Commune</label><select data-geo data-placeholder="Toutes" asp-for="Filter.CommuneId" asp-items="Model.Communes"></select></div>
-            <div><label>Quartier</label><select data-geo data-placeholder="Tous" asp-for="Filter.DistrictId" asp-items="Model.Districts"></select></div>
+            <div><label for="Filter_WilayaId">Wilaya</label><select data-geo asp-for="Filter.WilayaId" asp-items="Model.Wilayas"></select></div>
+            <div><label for="Filter_DairaId">Daïra</label><select data-geo data-placeholder="Toutes" asp-for="Filter.DairaId" asp-items="Model.Dairas"></select></div>
+            <div><label for="Filter_CommuneId">Commune</label><select data-geo data-placeholder="Toutes" asp-for="Filter.CommuneId" asp-items="Model.Communes"></select></div>
+            <div><label for="Filter_DistrictId">Quartier</label><select data-geo data-placeholder="Tous" asp-for="Filter.DistrictId" asp-items="Model.Districts"></select></div>
         </div>
-        <div><label>Activité</label><select data-category-root="sub" asp-for="Filter.CategoryId" asp-items="Model.Categories"></select></div>
-        <div><label>Sous-activité</label><select id="sub" data-placeholder="Toutes" asp-for="Filter.SubCategoryId" asp-items="Model.SubCategories"></select></div>
-        <div><label>Source</label><select asp-for="Filter.SourceType" asp-items="Html.GetEnumSelectList<SourceType>()"><option value="">—</option></select></div>
-        <div><label>Utilisateur responsable</label><select asp-for="Filter.ResponsibleUserId" asp-items="Model.Users"></select></div>
-        <div><label>État du recensement</label><select asp-for="Filter.CensusStatusId" asp-items="Model.CensusStatuses"></select></div>
-        <div><label>Traitement</label><select asp-for="Filter.ProcessingStatusId" asp-items="Model.ProcessingStatuses"></select></div>
-        <div><label>Résultat commercial</label><select asp-for="Filter.OutcomeStatusId" asp-items="Model.OutcomeStatuses"></select></div>
-        <div><label>Priorité</label><select asp-for="Filter.Priority" asp-items="Html.GetEnumSelectList<Priority>()"><option value="">—</option></select></div>
-        <div><label>Collectée du</label><input type="date" asp-for="Filter.CollectedFrom" /></div>
-        <div><label>au</label><input type="date" asp-for="Filter.CollectedTo" /></div>
-        <div><label>Vérifiée du</label><input type="date" asp-for="Filter.VerifiedFrom" /></div>
-        <div><label>au</label><input type="date" asp-for="Filter.VerifiedTo" /></div>
-        <div><label>À revérifier (jamais ou avant le)</label><input type="date" asp-for="Filter.StaleBefore" /></div>
-        <div><label>Complétude min %</label><input type="number" min="0" max="100" asp-for="Filter.MinCompleteness" /></div>
-        <div><label>Complétude max %</label><input type="number" min="0" max="100" asp-for="Filter.MaxCompleteness" /></div>
-        <div><label>A un téléphone</label><select asp-for="Filter.HasPhone" asp-items="triState"></select></div>
-        <div><label>A un site web</label><select asp-for="Filter.HasWebsite" asp-items="triState"></select></div>
-        <div><label>A des coordonnées</label><select asp-for="Filter.HasCoordinates" asp-items="triState"></select></div>
-        <div><label>Erreur de contact</label><select asp-for="Filter.HasContactError" asp-items="triState"></select></div>
-        <div><label>Changement signalé</label><select asp-for="Filter.ChangeReported" asp-items="triState"></select></div>
-        <div><label>Doublon potentiel</label><select asp-for="Filter.PendingDuplicate" asp-items="triState"></select></div>
-        <div><label>Par page</label><select asp-for="Filter.PageSize" asp-items='new[] { new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem("25","25"), new("50","50"), new("100","100") }'></select></div>
+        <div><label for="Filter_CategoryId">Activité</label><select data-category-root="sub" asp-for="Filter.CategoryId" asp-items="Model.Categories"></select></div>
+        <div><label for="sub">Sous-activité</label><select id="sub" data-placeholder="Toutes" asp-for="Filter.SubCategoryId" asp-items="Model.SubCategories"></select></div>
+        <div><label for="Filter_SourceType">Source</label><select asp-for="Filter.SourceType" asp-items="Html.GetEnumSelectList<SourceType>()"><option value="">—</option></select></div>
+        <div><label for="Filter_ResponsibleUserId">Utilisateur responsable</label><select asp-for="Filter.ResponsibleUserId" asp-items="Model.Users"></select></div>
+        <div><label for="Filter_CensusStatusId">État du recensement</label><select asp-for="Filter.CensusStatusId" asp-items="Model.CensusStatuses"></select></div>
+        <div><label for="Filter_ProcessingStatusId">Traitement</label><select asp-for="Filter.ProcessingStatusId" asp-items="Model.ProcessingStatuses"></select></div>
+        <div><label for="Filter_OutcomeStatusId">Résultat commercial</label><select asp-for="Filter.OutcomeStatusId" asp-items="Model.OutcomeStatuses"></select></div>
+        <div><label for="Filter_Priority">Priorité</label><select asp-for="Filter.Priority" asp-items="Html.GetEnumSelectList<Priority>()"><option value="">—</option></select></div>
+        <div><label for="Filter_CollectedFrom">Collectée du</label><input type="date" asp-for="Filter.CollectedFrom" /></div>
+        <div><label for="Filter_CollectedTo">au</label><input type="date" asp-for="Filter.CollectedTo" /></div>
+        <div><label for="Filter_VerifiedFrom">Vérifiée du</label><input type="date" asp-for="Filter.VerifiedFrom" /></div>
+        <div><label for="Filter_VerifiedTo">au</label><input type="date" asp-for="Filter.VerifiedTo" /></div>
+        <div><label for="Filter_StaleBefore">À revérifier (jamais ou avant le)</label><input type="date" asp-for="Filter.StaleBefore" /></div>
+        <div><label for="Filter_MinCompleteness">Complétude min %</label><input type="number" min="0" max="100" asp-for="Filter.MinCompleteness" /></div>
+        <div><label for="Filter_MaxCompleteness">Complétude max %</label><input type="number" min="0" max="100" asp-for="Filter.MaxCompleteness" /></div>
+        <div><label for="Filter_HasPhone">A un téléphone</label><select asp-for="Filter.HasPhone" asp-items="triState"></select></div>
+        <div><label for="Filter_HasWebsite">A un site web</label><select asp-for="Filter.HasWebsite" asp-items="triState"></select></div>
+        <div><label for="Filter_HasCoordinates">A des coordonnées</label><select asp-for="Filter.HasCoordinates" asp-items="triState"></select></div>
+        <div><label for="Filter_HasContactError">Erreur de contact</label><select asp-for="Filter.HasContactError" asp-items="triState"></select></div>
+        <div><label for="Filter_ChangeReported">Changement signalé</label><select asp-for="Filter.ChangeReported" asp-items="triState"></select></div>
+        <div><label for="Filter_PendingDuplicate">Doublon potentiel</label><select asp-for="Filter.PendingDuplicate" asp-items="triState"></select></div>
+        <div><label for="Filter_PageSize">Par page</label><select asp-for="Filter.PageSize" asp-items='new[] { new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem("25","25"), new("50","50"), new("100","100") }'></select></div>
     </div>
     <p class="muted">Filtres « relance en retard » et « campagne » : disponibles avec le module Campagnes / Relances (phase 2).</p>
     <div class="actions">
@@ -64,8 +64,8 @@
 </form>
 
 <form method="get" class="card row" style="align-items:end">
-    <div><label>Vues enregistrées</label>
-        <select name="ViewId" data-autosubmit>
+    <div><label for="ViewId">Vues enregistrées</label>
+        <select id="ViewId" name="ViewId" data-autosubmit>
             <option value="">— choisir une vue —</option>
             @foreach (var v in Model.Views) { <option value="@v.Id" selected="@(Model.ViewId == v.Id)">@v.Name@(v.Scope == SavedFilterScope.Shared ? " (équipe)" : "")</option> }
         </select></div>
@@ -76,7 +76,7 @@
 </form>
 <form method="post" asp-page-handler="SaveView" class="card row" style="align-items:end">
     <input type="hidden" name="returnQuery" value="@qs" />
-    <div><label>Enregistrer les filtres actuels sous le nom</label><input name="viewName" maxlength="80" required /></div>
+    <div><label for="viewName">Enregistrer les filtres actuels sous le nom</label><input id="viewName" name="viewName" maxlength="80" required /></div>
     @if (User.HasClaim(Permissions.ClaimType, Permissions.BusinessViewAll)) { <label><input type="checkbox" name="shared" value="true" /> Partager avec l'équipe</label> }
     <button type="submit">Enregistrer la vue</button>
 </form>
@@ -89,24 +89,24 @@
             <span class="muted">Actions sur la sélection :</span>
             @if (CanAssign)
             {
-                <div><label>Affecter à</label><select name="userId" asp-items="Model.Users"></select></div>
+                <div><label for="userId">Affecter à</label><select id="userId" name="userId" asp-items="Model.Users"></select></div>
                 <button type="submit" name="bulk" value="assign" data-confirm="Affecter les entreprises sélectionnées à cet utilisateur ?">Affecter</button>
             }
             @if (Model.CampaignChoices.Count > 1)
             {
-                <div><label>Ajouter à une campagne</label><select name="campaignId" asp-items="Model.CampaignChoices"></select></div>
+                <div><label for="campaignId">Ajouter à une campagne</label><select id="campaignId" name="campaignId" asp-items="Model.CampaignChoices"></select></div>
                 <button type="submit" name="bulk" value="campaign" data-confirm="Ajouter les entreprises sélectionnées à cette campagne (avec l'utilisateur choisi dans « Affecter à » comme responsable) ?">Ajouter à la campagne</button>
             }
             @if (CanEdit)
             {
-                <div><label>Changer un statut</label>
-                    <select name="statusId">
+                <div><label for="statusId">Changer un statut</label>
+                    <select id="statusId" name="statusId">
                         <option value="">—</option>
                         <optgroup label="Recensement">@foreach (var s in Model.CensusStatuses.Skip(1)) { <option value="@s.Value" data-kind="Census">@s.Text</option> }</optgroup>
                         <optgroup label="Traitement">@foreach (var s in Model.ProcessingStatuses.Skip(1)) { <option value="@s.Value" data-kind="Processing">@s.Text</option> }</optgroup>
                         <optgroup label="Résultat">@foreach (var s in Model.OutcomeStatuses.Skip(1)) { <option value="@s.Value" data-kind="Outcome">@s.Text</option> }</optgroup>
                     </select></div>
-                <div><label>Dimension</label><select name="kind"><option value="Census">Recensement</option><option value="Processing">Traitement</option><option value="Outcome">Résultat</option></select></div>
+                <div><label for="kind">Dimension</label><select id="kind" name="kind"><option value="Census">Recensement</option><option value="Processing">Traitement</option><option value="Outcome">Résultat</option></select></div>
                 <button type="submit" name="bulk" value="status" data-confirm="Appliquer ce statut à toutes les entreprises sélectionnées ?">Appliquer</button>
             }
         </div>

@@ -6,3 +6,13 @@
 * En-têtes : CSP stricte (pas de script inline), X-Frame-Options DENY, nosniff ; cookies HttpOnly/SameSite=Lax/Secure ; antiforgery sur les formulaires.
 * Erreurs : corps standard `{success,message,errors}`, aucune trace exposée. Secrets hors du code (variables d'environnement). JWT : secret obligatoire hors développement.
 * À prévoir (phase 5) : sauvegarde/restauration documentées (mysqldump + fichiers), procédure de suppression/correction de données personnelles, audit de dépendances.
+
+## Audit de la phase 5 (vérifié par tests automatiques)
+* **Balayage anonyme** : chaque route `/api` (plus de 90, détectées automatiquement) renvoie 401 sans jeton (hors connexion). **Balayage commercial** : toutes les routes de gestion répondent 403. Les politiques par permission sont posées sur les contrôleurs **en plus** des contrôles dans les services (défense en profondeur).
+* Jetons : signature altérée, `alg=none`, clé étrangère, texte quelconque → 401. Compte désactivé ou mot de passe réinitialisé → sessions révoquées immédiatement.
+* En-têtes : CSP stricte (aucun script inline ni `unsafe-eval`, aucune ressource externe : Leaflet et polices du PDF sont embarqués), `X-Frame-Options: DENY`, `nosniff`, pas d'en-tête `Server`, cookie `HttpOnly; SameSite=Lax` (+`Secure` en production), antiforgery sur tous les formulaires.
+* Injection : tentatives SQL/LIKE (`'`, `%`, `_`, `\`) inertes (requêtes paramétrées) ; balisage stocké (`<script>`, `<img onerror>`) encodé dans les pages et rapports ; formules `= + - @` neutralisées dans les exports CSV/Excel ; sur-envoi de champs serveur ignoré.
+* Collecte : garde SSRF (adresses publiques seulement, contrôlée à la connexion TCP — un DNS piégé ou une redirection vers `169.254.169.254` est refusé), robots.txt respecté, CAPTCHA/403/429 jamais contournés, quotas et délais, requêtes Overpass construites à partir de filtres validés (pas d'injection de requête).
+* Limitation de débit : 10 soumissions de connexion/minute/IP (l'affichage de la page n'est pas limité) ; verrouillage après 5 échecs.
+* Défauts trouvés et corrigés pendant l'audit : recherche faite uniquement de symboles qui renvoyait tout ; limiteur de connexion qui bloquait aussi l'affichage de la page ; redémarrage plantant (seeding non idempotent) ; contrôleurs de gestion répondant 400 avant 403 ; clés de quota trop longues pour MySQL ; libellés non associés aux champs et contrastes insuffisants (accessibilité).
+* À votre charge en production : TLS (nginx + Let's Encrypt), secrets (`/etc/prospecta/prospecta.env` en 600), sauvegardes hors site (`docs/operations.md`), mises à jour régulières du runtime .NET et des paquets (`dotnet list package --vulnerable`).

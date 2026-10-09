@@ -6,15 +6,15 @@
 @if (!ModelState.IsValid) { <div class="alert err" role="alert"><ul>@foreach (var e in ModelState.Values.SelectMany(v => v.Errors)) { <li>@e.ErrorMessage</li> }</ul></div> }
 <form method="post" class="card"><div class="filters">
     <div data-geo-chain style="display:contents">
-        <div><label>Wilaya *</label><select data-geo asp-for="WilayaId" asp-items="Model.Wilayas"></select></div>
-        <div><label>Daïra</label><select data-geo data-placeholder="—" asp-for="DairaId" asp-items="Model.Dairas"></select></div>
-        <div><label>Commune</label><select data-geo data-placeholder="Toute la daïra" asp-for="Request2.AreaId" asp-items="Model.Communes"></select></div>
+        <div><label for="WilayaId">Wilaya *</label><select data-geo asp-for="WilayaId" asp-items="Model.Wilayas"></select></div>
+        <div><label for="DairaId">Daïra</label><select data-geo data-placeholder="—" asp-for="DairaId" asp-items="Model.Dairas"></select></div>
+        <div><label for="Request2_AreaId">Commune</label><select data-geo data-placeholder="Toute la daïra" asp-for="Request2.AreaId" asp-items="Model.Communes"></select></div>
     </div>
-    <div><label>Activité *</label><select data-category-root="sub" asp-for="Request2.CategoryId" asp-items="Model.Categories"></select></div>
-    <div><label>Sous-activité</label><select id="sub" asp-for="SubCategoryId" data-placeholder="—"><option value="">—</option></select></div>
-    <div><label>Mots-clés dans le nom (séparés par des virgules)</label><input asp-for="Request2.Keywords" maxlength="100" /></div>
-    <div><label>Résultats max (≤ 200)</label><input asp-for="Request2.MaxResults" type="number" min="1" max="200" /></div>
-    <div><label>Boîte géographique (facultatif) « sud,ouest,nord,est »</label><input asp-for="Request2.Bbox" placeholder="36.70,3.25,36.76,3.34" /></div>
+    <div><label for="Request2_CategoryId">Activité *</label><select data-category-root="sub" asp-for="Request2.CategoryId" asp-items="Model.Categories"></select></div>
+    <div><label for="sub">Sous-activité</label><select id="sub" asp-for="SubCategoryId" data-placeholder="—"><option value="">—</option></select></div>
+    <div><label for="Request2_Keywords">Mots-clés dans le nom (séparés par des virgules)</label><input asp-for="Request2.Keywords" maxlength="100" /></div>
+    <div><label for="Request2_MaxResults">Résultats max (≤ 200)</label><input asp-for="Request2.MaxResults" type="number" min="1" max="200" /></div>
+    <div><label for="Request2_Bbox">Boîte géographique (facultatif) « sud,ouest,nord,est »</label><input asp-for="Request2.Bbox" placeholder="36.70,3.25,36.76,3.34" /></div>
 </div>
 <p class="muted">Étendre la recherche à d'autres communes : relancez avec une autre commune ou une daïra entière (recherche par ses communes). Les entreprises déjà importées sont reconnues, jamais dupliquées.</p>
 <div class="actions"><button type="submit">Lancer la recherche</button><a class="btn secondary" href="/Sources">Sources de données</a></div></form>

@@ -4,11 +4,11 @@
 <h1>Tableau de bord</h1>
 <form method="get" class="card">
     <div class="filters" data-geo-chain>
-        <div><label>Collectées du</label><input type="date" asp-for="Filter.CollectedFrom" /></div>
-        <div><label>au</label><input type="date" asp-for="Filter.CollectedTo" /></div>
-        <div><label>Wilaya</label><select data-geo data-placeholder="Toutes les communes" asp-for="Filter.WilayaId" asp-items="Model.Wilayas"></select></div>
-        <div><label>Secteur</label><select asp-for="Filter.CategoryId" asp-items="Model.Categories"></select></div>
-        @if (Model.Users.Count > 0) { <div><label>Utilisateur</label><select asp-for="Filter.ResponsibleUserId" asp-items="Model.Users"></select></div> }
+        <div><label for="Filter_CollectedFrom">Collectées du</label><input type="date" asp-for="Filter.CollectedFrom" /></div>
+        <div><label for="Filter_CollectedTo">au</label><input type="date" asp-for="Filter.CollectedTo" /></div>
+        <div><label for="Filter_WilayaId">Wilaya</label><select data-geo data-placeholder="Toutes les communes" asp-for="Filter.WilayaId" asp-items="Model.Wilayas"></select></div>
+        <div><label for="Filter_CategoryId">Secteur</label><select asp-for="Filter.CategoryId" asp-items="Model.Categories"></select></div>
+        @if (Model.Users.Count > 0) { <div><label for="Filter_ResponsibleUserId">Utilisateur</label><select asp-for="Filter.ResponsibleUserId" asp-items="Model.Users"></select></div> }
     </div>
     <div class="actions"><button type="submit">Appliquer</button><a class="btn secondary" href="/">Réinitialiser</a></div>
 </form>

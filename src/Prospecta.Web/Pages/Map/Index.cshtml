@@ -4,13 +4,13 @@
 <link rel="stylesheet" href="~/lib/leaflet/leaflet.css" /><link rel="stylesheet" href="~/lib/markercluster/MarkerCluster.css" /><link rel="stylesheet" href="~/lib/markercluster/MarkerCluster.Default.css" />
 <h1>Carte des entreprises</h1>
 <form id="mapfilters" class="card"><div class="filters" data-geo-chain>
-    <div><label>Wilaya</label><select data-geo name="WilayaId" asp-items="Model.Wilayas"></select></div>
-    <div><label>Daïra</label><select data-geo data-placeholder="Toutes" name="DairaId"><option value="">Toutes</option></select></div>
-    <div><label>Commune</label><select data-geo data-placeholder="Toutes" name="CommuneId"><option value="">Toutes</option></select></div>
-    <div><label>Activité</label><select name="CategoryId" asp-items="Model.Categories"></select></div>
-    <div><label>Recensement</label><select name="CensusStatusId" asp-items="Model.Statuses"></select></div>
-    <div><label>Campagne</label><select name="CampaignId" asp-items="Model.Campaigns"></select></div>
-    @if (Model.Users.Count > 0) { <div><label>Commercial</label><select name="UserId" asp-items="Model.Users"></select></div> }
+    <div><label for="WilayaId">Wilaya</label><select id="WilayaId" data-geo name="WilayaId" asp-items="Model.Wilayas"></select></div>
+    <div><label for="DairaId">Daïra</label><select id="DairaId" data-geo data-placeholder="Toutes" name="DairaId"><option value="">Toutes</option></select></div>
+    <div><label for="CommuneId">Commune</label><select id="CommuneId" data-geo data-placeholder="Toutes" name="CommuneId"><option value="">Toutes</option></select></div>
+    <div><label for="CategoryId">Activité</label><select id="CategoryId" name="CategoryId" asp-items="Model.Categories"></select></div>
+    <div><label for="CensusStatusId">Recensement</label><select id="CensusStatusId" name="CensusStatusId" asp-items="Model.Statuses"></select></div>
+    <div><label for="CampaignId">Campagne</label><select id="CampaignId" name="CampaignId" asp-items="Model.Campaigns"></select></div>
+    @if (Model.Users.Count > 0) { <div><label for="UserId">Commercial</label><select id="UserId" name="UserId" asp-items="Model.Users"></select></div> }
 </div><div class="actions"><button type="submit">Afficher</button><span id="mapinfo" class="muted" role="status"></span></div></form>
 <div id="map" role="application" aria-label="Carte interactive des entreprises" style="height:65vh;min-height:360px;border:1px solid var(--line);border-radius:10px"></div>
 <p class="muted">Seules les entreprises disposant de coordonnées s'affichent (2 000 points maximum). Fond de carte © contributeurs <a href="https://www.openstreetmap.org/copyright" rel="noopener noreferrer" target="_blank">OpenStreetMap</a> : gratuit, sans clé ; hors ligne, les points s'affichent sans fond de carte. Cliquez sur un point pour ouvrir la fiche.</p>

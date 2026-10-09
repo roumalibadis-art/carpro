@@ -8,7 +8,7 @@
     <a class="btn @(Model.When == "upcoming" ? "" : "secondary")" href="/FollowUps?When=upcoming">7 prochains jours</a>
     <a class="btn @(Model.Status == FollowUpStatus.Done ? "" : "secondary")" href="/FollowUps?Status=Done">Effectuées</a>
 </nav>
-@if (Model.Users.Count > 0) { <form method="get" class="card row" style="align-items:end"><div><label>Utilisateur</label><select asp-for="UserId" asp-items="Model.Users" data-autosubmit></select></div></form> }
+@if (Model.Users.Count > 0) { <form method="get" class="card row" style="align-items:end"><div><label for="UserId">Utilisateur</label><select asp-for="UserId" asp-items="Model.Users" data-autosubmit></select></div></form> }
 @if (Model.Result.Items.Count == 0) { <div class="card">@Strings.T("common.empty")</div> }
 else
 {

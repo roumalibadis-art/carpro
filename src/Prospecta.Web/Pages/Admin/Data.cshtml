@@ -1,0 +1,18 @@
+@page
+@model Prospecta.Web.Pages.Admin.DataModel
+@{ ViewData["Title"] = "Conservation et suppression des données"; }
+<h1>Conservation et suppression des données</h1>
+<p class="muted">Une entreprise supprimée reste récupérable (historique conservé). La <b>purge</b> est définitive : elle efface la fiche, ses sources, visites (dont les noms de responsables rencontrés), relances, historique et liens de campagne. Chaque purge est tracée dans le journal d'activité, sans les données effacées. Pour une demande de <b>correction</b>, modifiez la fiche (l'ancien contenu reste dans l'historique) ; pour une demande d'<b>effacement</b>, supprimez puis purgez.</p>
+<form method="post" asp-page-handler="PurgeOld" class="card row" style="align-items:end" data-confirm="Purger définitivement toutes les entreprises supprimées depuis plus de ce délai ?">
+    <div><label for="days">Purger les entreprises supprimées depuis plus de (jours, 30 min.)</label><input id="days" name="days" type="number" min="30" value="90" /></div><button type="submit" class="danger">Purger</button></form>
+@if (Model.Result.Items.Count == 0) { <div class="card">Aucune entreprise supprimée.</div> }
+else
+{
+    <div class="tablewrap"><table class="responsive"><thead><tr><th>Entreprise</th><th>Supprimée le</th><th>Fusionnée</th><th>Visites</th><th>Relances</th><th></th></tr></thead><tbody>
+    @foreach (var d in Model.Result.Items)
+    {
+        <tr><td data-label="Entreprise">@d.Name</td><td data-label="Supprimée">@d.DeletedAt.ToString("dd/MM/yyyy")</td><td data-label="Fusionnée">@(d.Merged ? "oui" : "non")</td><td data-label="Visites">@d.Visits</td><td data-label="Relances">@d.FollowUps</td>
+            <td><form method="post" asp-page-handler="Purge" data-confirm="Purger définitivement « @d.Name » ? Action irréversible."><input type="hidden" name="id" value="@d.Id" /><button class="danger" type="submit">Purger</button></form></td></tr>
+    }</tbody></table></div>
+    <partial name="_Pager" model="(Model.Result.Page, Model.Result.TotalPages, Model.Result.Total)" />
+}

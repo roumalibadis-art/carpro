@@ -10,3 +10,5 @@ TestResults/
 .env
 appsettings.Local.json
 App_Data/
+e2e/node_modules/
+scripts/*.log

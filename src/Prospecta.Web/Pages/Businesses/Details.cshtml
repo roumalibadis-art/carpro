@@ -64,7 +64,7 @@
         {
             <form method="post" asp-page-handler="Status" class="row" style="align-items:end;margin-bottom:8px">
                 <input type="hidden" name="kind" value="@kind" />
-                <div><label>@label</label><select name="statusId" asp-items="items" disabled="@(!d.CanEdit)"></select></div>
+                <div><label for="statusId">@label</label><select id="statusId" name="statusId" asp-items="items" disabled="@(!d.CanEdit)"></select></div>
                 @if (d.CanEdit) { <button type="submit" class="secondary">Changer</button> }
             </form>
         }
@@ -84,7 +84,7 @@
         @if (Can(Permissions.BusinessAssign))
         {
             <form method="post" asp-page-handler="Assign" class="row" style="align-items:end">
-                <div><label>Affecter à</label><select name="userId" asp-items="Model.Users"></select></div><button type="submit">Affecter</button>
+                <div><label for="userId">Affecter à</label><select id="userId" name="userId" asp-items="Model.Users"></select></div><button type="submit">Affecter</button>
             </form>
         }
     </section>
@@ -116,8 +116,8 @@
     <h3>Relances</h3>
     @foreach (var f in Model.FollowUps) { <p>@f.DueDate.ToString("dd/MM/yyyy") — @f.Reason <span class="badge @(f.Overdue ? "bad" : "")">@(f.Overdue ? "en retard" : f.Status.ToString())</span> <span class="muted">@f.AssignedTo</span></p> }
     <form method="post" asp-page-handler="FollowUp" class="row" style="align-items:end">
-        <div><label>Nouvelle relance — échéance</label><input type="date" name="due" required /></div><div><label>Motif</label><input name="reason" required maxlength="500" /></div>
-        <div><label>Priorité</label><select name="priority"><option value="Normal">Normale</option><option value="High">Haute</option><option value="Low">Basse</option></select></div><button type="submit" class="secondary">Créer la relance</button></form>
+        <div><label for="due">Nouvelle relance — échéance</label><input id="due" type="date" name="due" required /></div><div><label for="reason">Motif</label><input id="reason" name="reason" required maxlength="500" /></div>
+        <div><label for="priority">Priorité</label><select id="priority" name="priority"><option value="Normal">Normale</option><option value="High">Haute</option><option value="Low">Basse</option></select></div><button type="submit" class="secondary">Créer la relance</button></form>
 </section>
 }
 
@@ -138,6 +138,6 @@
 @if (Can(Permissions.BusinessDelete))
 {
     <form method="post" asp-page-handler="Delete" class="card row" style="align-items:end" data-confirm="Supprimer cette entreprise ? (suppression logique, l'historique est conservé)">
-        <div><label>Motif de suppression</label><input name="reason" maxlength="200" /></div><button class="danger" type="submit">Supprimer</button>
+        <div><label for="reason">Motif de suppression</label><input id="reason" name="reason" maxlength="200" /></div><button class="danger" type="submit">Supprimer</button>
     </form>
 }

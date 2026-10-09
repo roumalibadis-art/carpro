@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Prospecta.Application.Security;
 using Prospecta.Application.Businesses;
 using Prospecta.Application.Common;
 using Prospecta.Application.Dashboard;
@@ -16,10 +18,10 @@ public sealed class ReferenceController(ReferenceService service) : ControllerBa
     [HttpGet("geo")]
     public async Task<IActionResult> Geo(GeoLevel? level, Guid? parentId, bool includeInactive = false, CancellationToken ct = default) => Ok(await service.ListGeoAsync(level, parentId, includeInactive, ct));
 
-    [HttpPost("geo")]
+    [Authorize(Policy = Permissions.ReferenceManage), HttpPost("geo")]
     public async Task<IActionResult> CreateGeo(GeoSave input, CancellationToken ct) => Ok(await service.SaveGeoAsync(null, input, ct));
 
-    [HttpPut("geo/{id:guid}")]
+    [Authorize(Policy = Permissions.ReferenceManage), HttpPut("geo/{id:guid}")]
     public async Task<IActionResult> UpdateGeo(Guid id, GeoSave input, CancellationToken ct) => Ok(await service.SaveGeoAsync(id, input, ct));
 
     [HttpGet("categories")]
@@ -27,10 +29,10 @@ public sealed class ReferenceController(ReferenceService service) : ControllerBa
 
     public sealed record CategoryRequest(string Name, Guid? ParentId, bool IsActive = true, string? OsmFilter = null);
 
-    [HttpPost("categories")]
+    [Authorize(Policy = Permissions.ReferenceManage), HttpPost("categories")]
     public async Task<IActionResult> CreateCategory(CategoryRequest r, CancellationToken ct) => Ok(await service.SaveCategoryAsync(null, r.Name, r.ParentId, r.IsActive, r.OsmFilter, ct));
 
-    [HttpPut("categories/{id:guid}")]
+    [Authorize(Policy = Permissions.ReferenceManage), HttpPut("categories/{id:guid}")]
     public async Task<IActionResult> UpdateCategory(Guid id, CategoryRequest r, CancellationToken ct) => Ok(await service.SaveCategoryAsync(id, r.Name, r.ParentId, r.IsActive, r.OsmFilter, ct));
 
     [HttpGet("statuses")]
@@ -38,14 +40,14 @@ public sealed class ReferenceController(ReferenceService service) : ControllerBa
 
     public sealed record StatusSave(StatusKind Kind, string? Code, string Label, int SortOrder = 100, bool IsActive = true);
 
-    [HttpPost("statuses")]
+    [Authorize(Policy = Permissions.ReferenceManage), HttpPost("statuses")]
     public async Task<IActionResult> CreateStatus(StatusSave r, CancellationToken ct) => Ok(await service.SaveStatusAsync(null, r.Kind, r.Code ?? "", r.Label, r.SortOrder, r.IsActive, ct));
 
-    [HttpPut("statuses/{id:guid}")]
+    [Authorize(Policy = Permissions.ReferenceManage), HttpPut("statuses/{id:guid}")]
     public async Task<IActionResult> UpdateStatus(Guid id, StatusSave r, CancellationToken ct) => Ok(await service.SaveStatusAsync(id, r.Kind, r.Code ?? "", r.Label, r.SortOrder, r.IsActive, ct));
 }
 
-[ApiController, Route("api/v1/duplicates")]
+[ApiController, Route("api/v1/duplicates"), Authorize(Policy = Permissions.DuplicateManage)]
 public sealed class DuplicatesController(DuplicateService service) : ControllerBase
 {
     [HttpGet]
@@ -71,7 +73,7 @@ public sealed class DuplicatesController(DuplicateService service) : ControllerB
     public async Task<IActionResult> Rescan(int max = 500, CancellationToken ct = default) => Ok(new { pairs = await service.RescanAsync(max, ct) });
 }
 
-[ApiController, Route("api/v1/imports")]
+[ApiController, Route("api/v1/imports"), Authorize(Policy = Permissions.BusinessImport)]
 public sealed class ImportsController(ImportService service) : ControllerBase
 {
     [HttpGet]
@@ -106,10 +108,27 @@ public sealed class ImportsController(ImportService service) : ControllerBase
     }
 }
 
+[ApiController, Route("api/v1/data"), Authorize(Policy = Permissions.DataPurge)]
+public sealed class DataController(Prospecta.Application.Businesses.DataRetentionService service) : ControllerBase
+{
+    [HttpGet("deleted")]
+    public async Task<IActionResult> Deleted(int page = 1, int pageSize = 25, CancellationToken ct = default) => Ok(await service.ListDeletedAsync(page, pageSize, ct));
+
+    [HttpDelete("businesses/{id:guid}")]
+    public async Task<IActionResult> Purge(Guid id, CancellationToken ct)
+    {
+        await service.PurgeAsync(id, ct);
+        return NoContent();
+    }
+
+    [HttpPost("purge-older-than")]
+    public async Task<IActionResult> PurgeOld(int days = 90, CancellationToken ct = default) => Ok(new { purged = await service.PurgeOlderThanAsync(days, ct) });
+}
+
 [ApiController, Route("api/v1")]
 public sealed class AdminController(UserAdminService users, DashboardService dashboard, AuditQueryService audit, SavedFilterService filters) : ControllerBase
 {
-    [HttpGet("users")]
+    [Authorize(Policy = Permissions.UserManage), HttpGet("users")]
     public async Task<IActionResult> Users(string? search, int page = 1, int pageSize = 25, CancellationToken ct = default) => Ok(await users.ListAsync(search, page, pageSize, ct));
 
     [HttpGet("users/assignable")]
@@ -119,23 +138,23 @@ public sealed class AdminController(UserAdminService users, DashboardService das
     public sealed record UpdateUserRequest(string FullName, bool IsActive, string Role, Guid? ManagerId);
     public sealed record PasswordRequest(string NewPassword);
 
-    [HttpPost("users")]
+    [Authorize(Policy = Permissions.UserManage), HttpPost("users")]
     public async Task<IActionResult> CreateUser(CreateUserRequest r) => Ok(await users.CreateAsync(r.Email, r.FullName, r.Password, r.Role, r.ManagerId));
 
-    [HttpPut("users/{id:guid}")]
+    [Authorize(Policy = Permissions.UserManage), HttpPut("users/{id:guid}")]
     public async Task<IActionResult> UpdateUser(Guid id, UpdateUserRequest r) => Ok(await users.UpdateAsync(id, r.FullName, r.IsActive, r.Role, r.ManagerId));
 
-    [HttpPost("users/{id:guid}/password")]
+    [Authorize(Policy = Permissions.UserManage), HttpPost("users/{id:guid}/password")]
     public async Task<IActionResult> ResetPassword(Guid id, PasswordRequest r)
     {
         await users.ResetPasswordAsync(id, r.NewPassword);
         return NoContent();
     }
 
-    [HttpGet("roles")]
+    [Authorize(Policy = Permissions.RoleManage), HttpGet("roles")]
     public async Task<IActionResult> Roles() => Ok(await users.ListRolesAsync());
 
-    [HttpPut("roles/{name}/permissions")]
+    [Authorize(Policy = Permissions.RoleManage), HttpPut("roles/{name}/permissions")]
     public async Task<IActionResult> SetPermissions(string name, string[] permissions)
     {
         await users.SetRolePermissionsAsync(name, permissions);
@@ -145,7 +164,7 @@ public sealed class AdminController(UserAdminService users, DashboardService das
     [HttpGet("dashboard")]
     public async Task<IActionResult> Dashboard([FromQuery] BusinessFilter filter, CancellationToken ct) => Ok(await dashboard.GetAsync(filter, ct));
 
-    [HttpGet("audit")]
+    [Authorize(Policy = Permissions.AuditView), HttpGet("audit")]
     public async Task<IActionResult> Audit(string? action, string? user, DateTime? from, DateTime? to, int page = 1, int pageSize = 50, CancellationToken ct = default) => Ok(await audit.ListAsync(action, user, from, to, page, pageSize, ct));
 
     [HttpGet("saved-filters")]

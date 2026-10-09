@@ -97,8 +97,11 @@ builder.Services.AddAuthorization(o =>
 builder.Services.AddRateLimiter(o =>
 {
     o.RejectionStatusCode = 429;
-    o.AddPolicy("login", ctx => RateLimitPartition.GetFixedWindowLimiter(ctx.Connection.RemoteIpAddress?.ToString() ?? "unknown",
-        _ => new FixedWindowRateLimiterOptions { PermitLimit = ctx.RequestServices.GetRequiredService<IConfiguration>().GetValue("RateLimit:LoginPerMinute", 10), Window = TimeSpan.FromMinutes(1), QueueLimit = 0 }));
+    // Only credential submissions are throttled; viewing the login page (e.g. after a session expires) is never blocked.
+    o.AddPolicy("login", ctx => !HttpMethods.IsPost(ctx.Request.Method)
+        ? RateLimitPartition.GetNoLimiter("view")
+        : RateLimitPartition.GetFixedWindowLimiter(ctx.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions { PermitLimit = ctx.RequestServices.GetRequiredService<IConfiguration>().GetValue("RateLimit:LoginPerMinute", 10), Window = TimeSpan.FromMinutes(1), QueueLimit = 0 }));
 });
 
 builder.Services.AddControllers().AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter()))
@@ -118,6 +121,8 @@ builder.Services.AddSwaggerGen(o =>
 builder.Services.AddHostedService<Prospecta.Web.Security.ReminderHostedService>();
 builder.Services.AddHealthChecks().AddDbContextCheck<Prospecta.Infrastructure.Persistence.AppDbContext>();
 builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(o => o.MultipartBodyLengthLimit = 6 * 1024 * 1024);
+
+builder.WebHost.ConfigureKestrel(k => k.AddServerHeader = false); // do not advertise the server software
 
 var app = builder.Build();
 

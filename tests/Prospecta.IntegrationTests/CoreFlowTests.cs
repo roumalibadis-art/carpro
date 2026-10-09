@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using Prospecta.IntegrationTests.Support;
 
 namespace Prospecta.IntegrationTests;
@@ -63,6 +64,25 @@ public class CoreFlowTests(ApiFactory f) : IClassFixture<ApiFactory>
         (await mgr.GetAsync("/api/v1/businesses/export?format=csv")).StatusCode.Should().Be(HttpStatusCode.Forbidden);
         (await admin.PutAsJsonAsync("/api/v1/roles/Admin/permissions", new[] { "Business.View" })).StatusCode.Should().Be(HttpStatusCode.Conflict);
         await admin.PutAsJsonAsync("/api/v1/roles/SalesManager/permissions", perms.Append("Business.Export"));
+    }
+
+    [Fact]
+    public async Task Restarting_on_an_existing_database_is_safe_and_changes_nothing()
+    {
+        var admin = await f.ClientAsync(); // forces the first start-up seeding
+        async Task<(int Statuses, int Wilayas, int Roles, int Users, int Categories)> Counts()
+        {
+            using var scope = f.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<Prospecta.Infrastructure.Persistence.AppDbContext>();
+            return (db.StatusValues.Count(), db.GeographicAreas.Count(a => a.Level == Prospecta.Domain.Common.GeoLevel.Wilaya), db.Roles.Count(), db.Users.Count(), db.BusinessCategories.Count());
+        }
+
+        var before = await Counts();
+        await Prospecta.Infrastructure.Seeding.DataSeeder.RunAsync(f.Services);
+        await Prospecta.Infrastructure.Seeding.DataSeeder.RunAsync(f.Services);
+        (await Counts()).Should().Be(before);
+        before.Wilayas.Should().Be(58);
+        (await admin.GetAsync("/api/v1/auth/me")).StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
     [Fact]

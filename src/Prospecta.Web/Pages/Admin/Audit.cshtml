@@ -3,8 +3,8 @@
 @{ ViewData["Title"] = "Journal d'activité"; }
 <h1>Journal d'activité</h1>
 <form method="get" class="card"><div class="filters">
-    <div><label>Action (préfixe, ex. business.)</label><input asp-for="Action" /></div><div><label>Utilisateur</label><input asp-for="UserName" /></div>
-    <div><label>Du</label><input asp-for="From" type="date" /></div><div><label>Au</label><input asp-for="To" type="date" /></div>
+    <div><label for="Action">Action (préfixe, ex. business.)</label><input asp-for="Action" /></div><div><label for="UserName">Utilisateur</label><input asp-for="UserName" /></div>
+    <div><label for="From">Du</label><input asp-for="From" type="date" /></div><div><label for="To">Au</label><input asp-for="To" type="date" /></div>
 </div><div class="actions"><button type="submit">Filtrer</button><a class="btn secondary" href="/Admin/Audit">Réinitialiser</a></div></form>
 <div class="tablewrap"><table class="responsive"><thead><tr><th>Date (UTC)</th><th>Utilisateur</th><th>Action</th><th>Objet</th><th>Détails</th><th>IP</th></tr></thead><tbody>
 @foreach (var a in Model.Result.Items)

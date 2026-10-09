@@ -18,6 +18,6 @@
 </div>
 @if (Model.Data.CanValidate)
 {
-    <form method="post" asp-page-handler="Validate" class="card row" style="align-items:end" data-confirm="Valider ce rapport en votre nom ?"><div><label>Note de validation (facultatif)</label><input name="note" maxlength="500" /></div><button type="submit">Valider ce rapport</button></form>
+    <form method="post" asp-page-handler="Validate" class="card row" style="align-items:end" data-confirm="Valider ce rapport en votre nom ?"><div><label for="note">Note de validation (facultatif)</label><input id="note" name="note" maxlength="500" /></div><button type="submit">Valider ce rapport</button></form>
 }
 <partial name="_ReportDoc" model="Model.Data.Document" />

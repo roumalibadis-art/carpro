@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Prospecta.Application.Security;
 using Prospecta.Application.Businesses;
 using Prospecta.Domain.Common;
 
@@ -36,7 +38,7 @@ public sealed class BusinessesController(BusinessService service, ExportService 
         return NoContent();
     }
 
-    [HttpPost("{id:guid}/verify")]
+    [Authorize(Policy = Permissions.BusinessVerify), HttpPost("{id:guid}/verify")]
     public async Task<IActionResult> Verify(Guid id, CancellationToken ct)
     {
         await service.VerifyAsync(id, ct);
@@ -60,7 +62,7 @@ public sealed class BusinessesController(BusinessService service, ExportService 
     [HttpGet("{id:guid}/history")]
     public async Task<IActionResult> History(Guid id, int page = 1, int pageSize = 50, CancellationToken ct = default) => Ok(await service.HistoryAsync(id, page, pageSize, ct));
 
-    [HttpPost("assign")]
+    [Authorize(Policy = Permissions.BusinessAssign), HttpPost("assign")]
     public async Task<IActionResult> Assign(AssignRequest r, CancellationToken ct) => Ok(new { assigned = await service.AssignAsync(r.BusinessIds, r.UserId, ct) });
 
     [HttpDelete("{id:guid}/assignments/{userId:guid}")]
@@ -73,7 +75,7 @@ public sealed class BusinessesController(BusinessService service, ExportService 
     [HttpPost("bulk-status")]
     public async Task<IActionResult> BulkStatus(BulkStatusRequest r, CancellationToken ct) => Ok(new { updated = await service.BulkSetStatusAsync(r.BusinessIds, r.Kind, r.StatusId, ct) });
 
-    [HttpGet("export")]
+    [Authorize(Policy = Permissions.BusinessExport), HttpGet("export")]
     public async Task<IActionResult> Export([FromQuery] BusinessFilter filter, string format = "csv", CancellationToken ct = default)
     {
         var file = await export.ExportAsync(filter, format, ct);

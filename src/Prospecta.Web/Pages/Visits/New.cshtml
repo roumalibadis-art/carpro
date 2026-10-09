@@ -6,22 +6,22 @@
 <form method="post" class="card">
     <input type="hidden" name="BusinessId" value="@Model.BusinessId" />
     <div class="filters">
-        <div><label>Type d'action</label><select asp-for="Action" asp-items="Html.GetEnumSelectList<VisitAction>()"></select></div>
-        <div><label>Date et heure (heure d'Alger)</label><input asp-for="When" type="datetime-local" required /></div>
-        <div><label>Campagne</label><select asp-for="CampaignId" asp-items="Model.Campaigns"></select></div>
-        <div><label>Sortie</label><select asp-for="OutingId" asp-items="Model.Outings"></select></div>
-        @if (Model.Users.Count > 0) { <div><label>Réalisée par</label><select asp-for="UserId" asp-items="Model.Users"></select></div> }
+        <div><label for="Action">Type d'action</label><select asp-for="Action" asp-items="Html.GetEnumSelectList<VisitAction>()"></select></div>
+        <div><label for="When">Date et heure (heure d'Alger)</label><input asp-for="When" type="datetime-local" required /></div>
+        <div><label for="CampaignId">Campagne</label><select asp-for="CampaignId" asp-items="Model.Campaigns"></select></div>
+        <div><label for="OutingId">Sortie</label><select asp-for="OutingId" asp-items="Model.Outings"></select></div>
+        @if (Model.Users.Count > 0) { <div><label for="UserId">Réalisée par</label><select asp-for="UserId" asp-items="Model.Users"></select></div> }
     </div>
-    <p><label>Commentaire</label><textarea asp-for="Comment" maxlength="4000"></textarea></p>
+    <p><label for="Comment">Commentaire</label><textarea asp-for="Comment" maxlength="4000"></textarea></p>
     <p><label><input type="checkbox" asp-for="AlreadyDone" /> Cette action a déjà eu lieu : je renseigne son résultat maintenant</label></p>
     <fieldset class="card"><legend>Résultat (si déjà réalisée)</legend><div class="filters">
-        <div><label>Responsable rencontré</label><input asp-for="Result.ContactMet" maxlength="200" /></div>
-        <div><label>Niveau d'intérêt</label><select asp-for="Result.Interest" asp-items="Html.GetEnumSelectList<InterestLevel>()"><option value="">—</option></select></div>
-        <div><label>Résultat commercial</label><select asp-for="Result.OutcomeStatusId" asp-items="Model.Outcomes"></select></div>
-        <div><label>Prochaine relance le</label><input asp-for="Result.NextFollowUpDate" type="date" /></div></div>
-        <p><label>Prochaine action</label><input asp-for="Result.NextAction" maxlength="500" style="width:100%" /></p>
-        <p><label>Besoin identifié</label><textarea asp-for="Result.NeedIdentified"></textarea></p>
-        <p><label>Questions et objections</label><textarea asp-for="Result.Objections"></textarea></p>
-        <p><label>Informations ou démonstrations demandées</label><textarea asp-for="Result.RequestedInfo"></textarea></p></fieldset>
+        <div><label for="Result_ContactMet">Responsable rencontré</label><input asp-for="Result.ContactMet" maxlength="200" /></div>
+        <div><label for="Result_Interest">Niveau d'intérêt</label><select asp-for="Result.Interest" asp-items="Html.GetEnumSelectList<InterestLevel>()"><option value="">—</option></select></div>
+        <div><label for="Result_OutcomeStatusId">Résultat commercial</label><select asp-for="Result.OutcomeStatusId" asp-items="Model.Outcomes"></select></div>
+        <div><label for="Result_NextFollowUpDate">Prochaine relance le</label><input asp-for="Result.NextFollowUpDate" type="date" /></div></div>
+        <p><label for="Result_NextAction">Prochaine action</label><input asp-for="Result.NextAction" maxlength="500" style="width:100%" /></p>
+        <p><label for="Result_NeedIdentified">Besoin identifié</label><textarea asp-for="Result.NeedIdentified"></textarea></p>
+        <p><label for="Result_Objections">Questions et objections</label><textarea asp-for="Result.Objections"></textarea></p>
+        <p><label for="Result_RequestedInfo">Informations ou démonstrations demandées</label><textarea asp-for="Result.RequestedInfo"></textarea></p></fieldset>
     <div class="actions"><button type="submit">@Strings.T("action.save")</button><a class="btn secondary" href="/Businesses/Details/@Model.BusinessId">@Strings.T("action.cancel")</a></div>
 </form>

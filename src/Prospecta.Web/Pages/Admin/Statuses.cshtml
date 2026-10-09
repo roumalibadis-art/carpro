@@ -9,13 +9,13 @@
     @foreach (var s in Model.All.Where(x => x.Kind == kind).OrderBy(x => x.SortOrder))
     {
         <form method="post" asp-page-handler="Save" class="row" style="align-items:end"><input type="hidden" name="id" value="@s.Id" /><input type="hidden" name="kind" value="@kind" />
-            <div><label>Libellé @(s.IsSystem ? "(système)" : "")</label><input name="label" value="@s.Label" maxlength="100" required /></div>
-            <div><label>Ordre</label><input name="sortOrder" type="number" value="@s.SortOrder" style="width:80px" /></div>
+            <div><label for="label">Libellé @(s.IsSystem ? "(système)" : "")</label><input id="label" name="label" value="@s.Label" maxlength="100" required /></div>
+            <div><label for="sortOrder">Ordre</label><input id="sortOrder" name="sortOrder" type="number" value="@s.SortOrder" style="width:80px" /></div>
             <label><input type="checkbox" name="active" value="true" checked="@s.IsActive" disabled="@s.IsSystem" /> actif</label>
             @if (s.IsSystem) { <input type="hidden" name="active" value="true" /> }
             <button type="submit" class="secondary">Enregistrer</button></form>
     }
     <form method="post" asp-page-handler="Save" class="row" style="align-items:end"><input type="hidden" name="kind" value="@kind" />
-        <div><label>Nouveau statut</label><input name="label" maxlength="100" required /></div><div><label>Ordre</label><input name="sortOrder" type="number" value="500" style="width:80px" /></div><button type="submit">Ajouter</button></form>
+        <div><label for="label">Nouveau statut</label><input id="label" name="label" maxlength="100" required /></div><div><label for="sortOrder">Ordre</label><input id="sortOrder" name="sortOrder" type="number" value="500" style="width:80px" /></div><button type="submit">Ajouter</button></form>
     </section>
 }

@@ -4,7 +4,7 @@
 <h1>Actualisation et vérification des fiches</h1>
 <p class="muted">Sélectionnez les fiches à revérifier (non vérifiées depuis X mois, téléphone manquant, erreur de contact, changement signalé), puis comparez-les au site web public de l'entreprise. Les écarts sont <b>proposés</b> : une valeur confirmée par une personne n'est jamais écrasée.</p>
 <form method="get" class="card row" style="align-items:end">
-    <div><label>Non vérifiées depuis (mois)</label><input asp-for="Months" type="number" min="0" max="60" /></div>
+    <div><label for="Months">Non vérifiées depuis (mois)</label><input asp-for="Months" type="number" min="0" max="60" /></div>
     <label><input type="checkbox" asp-for="MissingPhone" /> téléphone manquant</label><label><input type="checkbox" asp-for="ContactError" /> erreur de contact</label><label><input type="checkbox" asp-for="ChangeReported" /> changement signalé</label>
     <button type="submit">Sélectionner</button></form>
 @if (Model.Result.Items.Count == 0) { <div class="card">@Strings.T("common.empty") Seules les fiches avec un site web peuvent être comparées automatiquement ; les autres se revérifient par téléphone ou sur place.</div> }

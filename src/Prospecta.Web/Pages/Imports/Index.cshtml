@@ -6,7 +6,7 @@
 <div class="card"><b>Modèle à respecter :</b> <a class="btn" href="/Imports/Template?format=xlsx">Télécharger le modèle Excel</a> <a class="btn secondary" href="/Imports/Template?format=csv">Modèle CSV</a> <span class="muted">— en-têtes reconnus automatiquement, listes déroulantes, feuille d'instructions et liste des communes.</span></div>
 <form method="post" enctype="multipart/form-data" class="card">
     <p>Étapes : <b>1.</b> choisir le fichier · <b>2.</b> associer les colonnes · <b>3.</b> vérifier l'aperçu (lignes valides, invalides, doublons) · <b>4.</b> confirmer. Rien n'est enregistré avant la confirmation.</p>
-    <div class="row" style="align-items:end"><div><label>Fichier Excel (.xlsx) ou CSV (5 Mo, 5 000 lignes max)</label><input type="file" name="file" accept=".csv,.xlsx" required /></div><button type="submit">Charger et prévisualiser</button></div>
+    <div class="row" style="align-items:end"><div><label for="file">Fichier Excel (.xlsx) ou CSV (5 Mo, 5 000 lignes max)</label><input id="file" type="file" name="file" accept=".csv,.xlsx" required /></div><button type="submit">Charger et prévisualiser</button></div>
 </form>
 <h2>Imports récents</h2>
 @if (Model.Batches.Count == 0) { <p class="muted">@Strings.T("common.empty")</p> }

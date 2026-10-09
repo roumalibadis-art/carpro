@@ -101,6 +101,7 @@ public static class DataSeeder
         await GrantOnceAsync(s, db, PermissionIntroductions.Phase2Flag, PermissionIntroductions.Phase2, ct);
         await GrantOnceAsync(s, db, PermissionIntroductions.Phase3Flag, PermissionIntroductions.Phase3, ct);
         await GrantOnceAsync(s, db, PermissionIntroductions.Phase4Flag, PermissionIntroductions.Phase4, ct);
+        await GrantOnceAsync(s, db, PermissionIntroductions.Phase5Flag, PermissionIntroductions.Phase5, ct);
     }
 
     private static async Task GrantOnceAsync(IServiceProvider s, AppDbContext db, string flag, string[] introduced, CancellationToken ct)
@@ -123,12 +124,12 @@ public static class DataSeeder
 
     private static async Task SeedStatusesAsync(AppDbContext db, CancellationToken ct)
     {
-        var existing = await db.StatusValues.Select(x => x.Kind + ":" + x.Code).ToListAsync(ct);
+        var existing = (await db.StatusValues.Select(x => new { x.Kind, x.Code }).ToListAsync(ct)).Select(x => (x.Kind, x.Code)).ToHashSet();
         var order = new Dictionary<StatusKind, int>();
         foreach (var (kind, code, label, system) in Statuses)
         {
             order[kind] = order.GetValueOrDefault(kind) + 1;
-            if (existing.Contains(kind + ":" + code)) continue;
+            if (existing.Contains((kind, code))) continue;
             db.StatusValues.Add(new StatusValue { Kind = kind, Code = code, Label = label, SortOrder = order[kind] * 10, IsSystem = system, CreatedAt = DateTime.UtcNow });
         }
 

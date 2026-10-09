@@ -1,17 +1,19 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Prospecta.Application.Security;
 using Prospecta.Application.Reporting;
 using Prospecta.Domain.Common;
 
 namespace Prospecta.Web.Controllers;
 
-[ApiController, Route("api/v1/indicators")]
+[ApiController, Route("api/v1/indicators"), Authorize(Policy = Permissions.ReportCreate)]
 public sealed class IndicatorsController(IndicatorService service) : ControllerBase
 {
     [HttpGet]
     public async Task<IActionResult> Get([FromQuery] IndicatorFilter filter, CancellationToken ct) => Ok(await service.ComputeAsync(filter, ct));
 }
 
-[ApiController, Route("api/v1/reports")]
+[ApiController, Route("api/v1/reports"), Authorize(Policy = Permissions.ReportCreate)]
 public sealed class ReportsController(ReportService service) : ControllerBase
 {
     [HttpGet]

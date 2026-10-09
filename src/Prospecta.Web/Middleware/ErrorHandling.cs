@@ -53,7 +53,7 @@ public sealed class ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorH
 
         ctx.Response.ContentType = "text/html; charset=utf-8";
         var title = status switch { 404 => "Introuvable", 401 or 403 => "Accès refusé", _ => "Erreur" };
-        await ctx.Response.WriteAsync($"<!doctype html><meta charset=utf-8><link rel=stylesheet href=/css/site.css><body class=bare><main class=card><h1>{title}</h1><p>{System.Net.WebUtility.HtmlEncode(message)}</p><p><a href=\"/\">Retour à l'accueil</a></p></main>");
+        await ctx.Response.WriteAsync($"<!doctype html><html lang=\"fr\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>{title} · Prospecta</title><link rel=\"stylesheet\" href=\"/css/site.css\"></head><body class=\"bare\"><main class=\"card\"><h1>{title}</h1><p>{System.Net.WebUtility.HtmlEncode(message)}</p><p><a href=\"/\">Retour à l'accueil</a></p></main></body></html>");
     }
 }
 
